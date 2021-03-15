@@ -30,14 +30,18 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             movementParent = Set.Object(gameObject, "[Movement Parent]", Vector3.zero);
             left = gameObject.AddComponent<XRMovementInformation>();
             right = gameObject.AddComponent<XRMovementInformation>();
-            left.SetupMovementInformation(movementParent, XRInputController.Check.Left, - hipOffset, connectionMaterial, connectionWidth);
-            right.SetupMovementInformation(movementParent, XRInputController.Check.Right, hipOffset, connectionMaterial, connectionWidth);
+            left.SetupMovementInformation(movementParent,  XRInputController.Check.Left, connectionMaterial, connectionWidth, PlayerRigidbody);
+            right.SetupMovementInformation(movementParent, XRInputController.Check.Right, connectionMaterial, connectionWidth, PlayerRigidbody);
         }
 
         private void Update()
         {
             SetTransforms();
             FindValidAnchors();
+        }
+
+        private void FixedUpdate()
+        {
             CheckStates();
         }
 

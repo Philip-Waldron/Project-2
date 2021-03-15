@@ -1,3 +1,4 @@
+using System;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using XR_Prototyping.Scripts.Utilities;
@@ -9,24 +10,42 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         {
             public XRInputController.Check check;
             public LineRenderer connection;
-
+            private Rigidbody playerRigidbody;
             private RaycastHit validPoint, attachedPoint;
             private Transform origin, hit, midpoint;
+            private bool valid;
 
+            private ConfigurableJoint ConfigurableJoint;
+            // private ConfigurableJoint ConfigurableJoint => origin.GetComponent<ConfigurableJoint>();
             private Vector3 ControllerPosition => XRInputController.Position(check);
             public Vector3 Origin => origin.position;
             public Vector3 CastVector => origin.forward;
             public Vector3 MoveVector => (attachedPoint.point - Origin).normalized;
+            private float Distance => Vector3.Distance(Origin, hit.position);
 
             public bool Attached { get; set; }
 
-            public void SetupMovementInformation(GameObject parent, XRInputController.Check set, float offset, Material material, float width)
+            public void SetupMovementInformation(GameObject parent, XRInputController.Check set, Material material, float width, Rigidbody player)
             {
                 check = set;
                 origin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
                 hit = Set.Object(null, $"[Movement Hit] {set.ToString()}", position: Vector3.zero).transform;
                 midpoint = Set.Object(null, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
                 connection = origin.gameObject.Line(material, width);
+                playerRigidbody = player;
+                ConfigurableJoint = parent.AddComponent<ConfigurableJoint>();
+            }
+
+            private void Update()
+            {
+                if (!Attached) return;
+                
+                ConfigurableJoint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
+                ConfigurableJoint.linearLimit = new SoftJointLimit()
+                {
+                    limit = Distance,
+                    bounciness = 0.3f
+                };
             }
 
             public void SetTransform(float hipOffset, float heightOffset)
@@ -43,12 +62,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             {
                 validPoint = raycastHit;
                 if (Attached) return;
+                valid = true;
                 hit.position = Vector3.Lerp(hit.position, raycastHit.point, .5f);
             }
 
             public void ClearAttachPoint()
             {
                 if (Attached) return;
+                valid = false;
                 hit.position = ControllerPosition;
             }
 
@@ -59,16 +80,38 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             public void Attach()
             {
-                Debug.Log("Attached");
+                if (!valid) return;
+                
                 Attached = true;
                 attachedPoint = validPoint;
                 hit.position = attachedPoint.point;
+                hit.SetParent(attachedPoint.transform);
+
+                ConfigurableJoint = attachedPoint.transform.gameObject.AddComponent<ConfigurableJoint>();
+                ConfigurableJoint.connectedBody = playerRigidbody;
+                
+                ConfigurableJoint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
+                
+                ConfigurableJoint.linearLimit = new SoftJointLimit()
+                {
+                    limit = Distance,
+                    bounciness = 0.3f
+                };
+                
+                ConfigurableJoint.xMotion = ConfigurableJointMotion.Limited;
+                ConfigurableJoint.yMotion = ConfigurableJointMotion.Limited;
+                ConfigurableJoint.zMotion = ConfigurableJointMotion.Limited;
             }
 
             public void Detach()
             {
-                Debug.Log("Detached");
                 Attached = false;
+                hit.SetParent(null);
+                
+                ConfigurableJoint.xMotion = ConfigurableJointMotion.Free;
+                ConfigurableJoint.yMotion = ConfigurableJointMotion.Free;
+                ConfigurableJoint.zMotion = ConfigurableJointMotion.Free;
+                //Destroy(ConfigurableJoint);
             }
         }
 }
