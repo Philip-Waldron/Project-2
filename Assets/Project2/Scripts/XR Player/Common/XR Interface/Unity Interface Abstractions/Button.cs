@@ -1,5 +1,6 @@
 ﻿using System;
 using DG.Tweening;
+using Project2.Scripts.XR_Player.Common.Feedback;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using UnityEngine.UI;

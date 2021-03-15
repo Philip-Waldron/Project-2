@@ -140,7 +140,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3537935100338196464, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3537935100338196464, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_LocalRotation.x
@@ -160,7 +160,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3537935100338196464, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3537935100338196464, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -178,5 +178,74 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[XR Player]'
       objectReference: {fileID: 0}
+    - target: {fileID: 3537935100338196466, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3537935101090532978, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: m_TagString
+      value: MainCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 6905848921483604646, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: m_Name
+      value: '[XR Debug Toggle]'
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+--- !u!1001 &4262894648250631173
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461390, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262894648384461391, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}
+      propertyPath: m_Name
+      value: '[Scene Statics]'
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 77cd22a10f3cdea458c7df1f3e8e1dbd, type: 3}

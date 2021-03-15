@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Project2.Scripts.XR_Player.Common.XR_Input;
+using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common.XR_Input;
-using XR_Prototyping.Scripts.Utilities;
+using XR_Prototyping.Scripts.Common.XR_Manipulation;
 using XR_Prototyping.Scripts.Utilities.Generic;
-using Transition = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.InputEvents.InputEvent.Transition;
 using Check = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Check;
 using Event = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Event;
 
-namespace XR_Prototyping.Scripts.Common.XR_Manipulation
+namespace Project2.Scripts.XR_Player.Common.XR_Manipulation
 {
     public class XRManipulationController : XRInputAbstraction
     {
@@ -116,7 +116,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation
             if (!XRInteractionController.GetEngagedState(check) && 
                 XRInputController.InputEvent(Event.GripPress).State(
                     check: check, 
-                    transition: Transition.Down))
+                    transition: InputEvents.InputEvent.Transition.Down))
             {
                 // You start to manipulate all defined objects
                 SetClosestManipulatableElement(check, FindClosestManipulatableElement(check));
@@ -128,7 +128,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation
                 // When you release with the defined hand
                 if (XRInputController.InputEvent(Event.GripPress).State(
                     check: check,
-                    transition: Transition.Up))
+                    transition: InputEvents.InputEvent.Transition.Up))
                 {
                     // You stop manipulating
                     ManipulateEnd(check, manipulationInformation);
@@ -138,7 +138,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation
                 else if (!biManualManipulation.manipulating)
                 {
                     // When grabbing an object and you grab with the other hand
-                    if (XRInputController.InputEvent(Event.GripPress).State(check: XRInputController.OtherHand(check), transition: Transition.Down))
+                    if (XRInputController.InputEvent(Event.GripPress).State(check: XRInputController.OtherHand(check), transition: InputEvents.InputEvent.Transition.Down))
                     {
                         BimanualManipulationStart(check);
                     }
@@ -151,7 +151,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation
                     // Continue manipulation
                     BimanualManipulationStay(check);
                     // When grabbing an object and you grab with the other hand
-                    if (XRInputController.InputEvent(Event.GripPress).State(check: XRInputController.OtherHand(check), transition: Transition.Up))
+                    if (XRInputController.InputEvent(Event.GripPress).State(check: XRInputController.OtherHand(check), transition: InputEvents.InputEvent.Transition.Up))
                     {
                         BimanualManipulationEnd(check);
                     }

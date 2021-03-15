@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using Project2.Scripts.XR_Player.Common.XR_Manipulation;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common.XR_Input;
 using XR_Prototyping.Scripts.Common.XR_Manipulation.Snapping;

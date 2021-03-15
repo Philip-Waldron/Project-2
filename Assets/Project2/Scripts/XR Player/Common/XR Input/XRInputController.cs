@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 using XR_Prototyping.Scripts.Common.XR_Input;
 using XR_Prototyping.Scripts.Utilities.Generic;
-using Transition = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.InputEvents.InputEvent.Transition;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Input
 {
@@ -14,51 +17,25 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
     /// </summary>
     public class XRInputController : XRInputAbstraction
     {
-        /// <summary>
-        /// Your spatial reference, 
-        /// </summary>
-        public enum Check
-        {
-            Left, 
-            Right, 
-            Head
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public enum Hand
-        {
-            NonDominant, 
-            Dominant
-        }
-        /// <summary>
-        /// Work in progress
-        /// </summary>
-        private enum DominantHandAbstraction
-        {
-            XRToolkitEvents,
-            TouchpadAbstraction
-        }
+        public enum Check { Left, Right, Head }
+        public enum Hand { NonDominant, Dominant }
+        
         [Header("Settings")]
-        [SerializeField, Range(0f, 1f)] private float threshold = .75f;
-        [SerializeField, Range(0f, 1f)] private float nibValue;
-        [SerializeField, Space(10)] private DominantHandAbstraction dominantHandAbstraction = DominantHandAbstraction.XRToolkitEvents;
-        [SerializeField] private TouchpadSegmentation touchpadSegmentation;
         [SerializeField] private Check dominantHand = Check.Right;
         [Header("References")]
         [SerializeField] private Transform headTransform;
         [SerializeField] private Transform leftTransform, rightTransform;
-        [SerializeField] private InputDevice headXRController, leftXRController, rightXRController;
-        // [SerializeField] private XRController headXRController, leftXRController, rightXRController;
+        [SerializeField] private XRController headController, leftController, rightController;
 
-        private const float AxisThreshold = .25f, AxisMinimum = 0f, AxisMaximum = 1f, ThresholdModifier = .25f, GestureTimeout = 100;
+        private const float AxisThreshold = .25f, AxisMinimum = 0f, AxisMaximum = 1f, ThresholdModifier = .25f;
+        internal const float GestureTimeout = 100;
         private Transform bimanualMidpoint;
 
-        private InputDevice HeadInputDevice => headXRController;//.inputDevice;
-        private InputDevice LeftInputDevice => leftXRController;//.inputDevice;
-        private InputDevice RightInputDevice => rightXRController;//.inputDevice;
+        private InputDevice HeadInputDevice => headController.inputDevice;
+        private InputDevice LeftInputDevice => leftController.inputDevice;
+        private InputDevice RightInputDevice => rightController.inputDevice;
 
-        #region Events
+        #region Event Creation
 
         [HideInInspector] public InputEvents 
                     grabEvents, 
@@ -72,9 +49,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
                     axisRight,
                     axisCenter,
                     primaryTouchEvents,
-                    analogTouchEvents,
-                    analogClickEvents,
-                    nibPress;
+                    analogTouchEvents;
         
                 [HideInInspector] public InputGestures
                     analogGestures;
@@ -84,349 +59,19 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
                     interControllerDistance;
 
         #endregion
-        
-        [Serializable] public class ValueDeltas
-        {
-            [Serializable] public class ValueDelta
-            {
-                public float previousValue, currentValue, delta;
 
-                /// <summary>
-                /// 
-                /// </summary>
-                /// <param name="current"></param>
-                /// <param name="logValue"></param>
-                public void SetDelta(float current, bool logValue)
-                {
-                    currentValue = current;
-
-                    if (!logValue)
-                    {
-                        previousValue = currentValue;
-                        delta = 0f;
-                    }
-                    else
-                    {
-                        delta = currentValue - previousValue;
-                        delta = delta > .75f ? 0f : delta; 
-                        previousValue = currentValue;
-                    }
-                }
-                /// <summary>
-                /// 
-                /// </summary>
-                /// <returns></returns>
-                public float GetDelta()
-                {
-                    return delta;
-                }
-            }
-            private ValueDelta nonDominantValueDelta = new ValueDelta(), dominantValueDelta = new ValueDelta();
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="check"></param>
-            /// <returns></returns>
-            public float GetDelta(Check check)
-            {
-                switch (check)
-                {
-                    case Check.Left:
-                        return nonDominantValueDelta.GetDelta();
-                    case Check.Right:
-                        return dominantValueDelta.GetDelta();
-                    case Check.Head:
-                        return 0f;
-                    default:
-                        return 0f;
-                }
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="dominant"></param>
-            /// <param name="dominantTouch"></param>
-            /// <param name="nonDominant"></param>
-            /// <param name="nonDominantTouch"></param>
-            public void SetDelta(float dominant, bool dominantTouch, float nonDominant, bool nonDominantTouch)
-            {
-                dominantValueDelta.SetDelta(dominant, dominantTouch);
-                nonDominantValueDelta.SetDelta(nonDominant, nonDominantTouch);
-            }
-        }
-        /// <summary>
-        /// A generic class for taking bi-manual inputs and transitions between button presses
-        /// </summary>
-        [Serializable] public class InputEvents
-        {
-            /// <summary>
-            /// Handles the logic for determining when input transitions happen
-            /// </summary>
-            [Serializable] public class InputEvent
-            {
-                public enum Transition
-                {
-                    Down, Up, Stay
-                }
-                private bool buttonDown, buttonUp, buttonStay;
-                public bool current, previous;
-                /// <summary>
-                /// Logic for checking the state of the inputs
-                /// </summary>
-                /// <param name="state"></param>
-                public void CheckState(bool state)
-                {
-                    current = state;
-                    buttonDown = current && !previous;
-                    buttonStay = current && previous;
-                    buttonUp = !current && previous;
-                    previous = current;
-                }
-                /// <summary>
-                /// Returns the state of the input transition
-                /// </summary>
-                /// <param name="transition"></param>
-                /// <returns></returns>
-                public bool State(Transition transition)
-                {
-                    switch (transition)
-                    {
-                        case Transition.Down:
-                            return buttonDown;
-                        case Transition.Up:
-                            return buttonUp;
-                        case Transition.Stay:
-                            return buttonStay;
-                        default:
-                            return false;
-                    }
-                }
-            }
-            public InputEvent left, right;
-            /// <summary>
-            /// Sets the state of the different inputs
-            /// </summary>
-            /// <param name="leftState"></param>
-            /// <param name="rightState"></param>
-            public void SetState(bool leftState, bool rightState)
-            {
-                left.CheckState(leftState);
-                right.CheckState(rightState);
-            }
-            /// <summary>
-            /// Returns the state of the interrogated input 
-            /// </summary>
-            /// <param name="check"></param>
-            /// <param name="transition"></param>
-            /// <returns></returns>
-            public bool State(Check check, InputEvent.Transition transition)
-            {
-                switch (check)
-                {
-                    case Check.Left:
-                        return left.State(transition);
-                    case Check.Right:
-                        return right.State(transition);
-                    case Check.Head:
-                        return false;
-                    default:
-                        return false;
-                }
-            }
-            /// <summary>
-            /// Returns the transition state of the interrogated input
-            /// </summary>
-            /// <param name="check"></param>
-            /// <param name="transition"></param>
-            /// <returns></returns>
-            public bool State(Transition transition, out Check check)
-            {
-                if (left.State(transition))
-                {
-                    check = Check.Left;
-                    return true;
-                }
-                if (right.State(transition))
-                {
-                    check = Check.Right;
-                    return true;
-                }
-                check = Check.Head;
-                return false;
-            }
-        }
-        /// <summary>
-        /// A generic abstraction to return gesture information about each hand
-        /// </summary>
-        [Serializable] public class InputGestures
-        {
-            private const float Modifier = .01f;
-            public InputGesture left, right;
-            /// <summary>
-            /// A generic class for detecting gestures
-            /// </summary>
-            [Serializable] public class InputGesture
-            {
-                public enum GestureType
-                {
-                    SingleTap,
-                    DoubleTap = 45,
-                    LongPress = 50
-                }
-                
-                private bool listening, waiting;
-                private bool singleTapValid, doubleTapValid, longPressValid;
-                private float startTime;
-
-                /// <summary>
-                /// Feeds in the state of the gesture inputs
-                /// </summary>
-                /// <param name="down"></param>
-                /// <param name="up"></param>
-                public void SetState(bool down, bool up)
-                {
-                    // Reset the state of all gestures every frame
-                    ResetValidity();
-                    float elapsedTime = Time.time - startTime;
-                    
-                    if (waiting) // If you have touch the touchpad once, but not again within the time window 
-                    {
-                        if (elapsedTime > (((float)GestureType.DoubleTap) * Modifier))
-                        {
-                            singleTapValid = true;
-                            waiting = false;
-                            listening = false;
-                        }
-                    }
-                    if (listening && !waiting) // Once you have started a gesture and lift your finger
-                    {
-                        if (up && elapsedTime < (((float)GestureType.DoubleTap) * Modifier))
-                        {
-                            waiting = true;
-                            return;
-                        }
-                        if (elapsedTime >= (((float) GestureType.LongPress) * Modifier))
-                        {
-                            longPressValid = true;
-                            listening = false;
-                            return;
-                        }
-                    }
-                    if (down) // True the frame you touch the touchpad first
-                    {
-                        if (!listening) // Start listening to detect gestures, log the time this starts
-                        {
-                            listening = true;
-                            waiting = false;
-                            startTime = Time.time;
-                            //Debug.Log($"Listening Started @ {startTime}");
-                        }
-                        else // When you press again after gesture recognition has begun
-                        {
-                            waiting = false;
-                            if (elapsedTime <= (((float)GestureType.DoubleTap) * Modifier)) // If you have pressed again within the time limit 
-                            {
-                                doubleTapValid = true;
-                                listening = false;
-                                //Debug.Log($"Double Tap -> {elapsedTime} <= {(float)GestureType.DoubleTap * Modifier}");
-                            }
-                        }
-                    }
-                    else if (listening && elapsedTime >= (GestureTimeout * Modifier)) // When the input value is false and you are waiting for a gesture
-                    {
-                        //Debug.Log($"Timeout -> {elapsedTime} >= {GestureTimeout * Modifier}");
-                        waiting = false;
-                        listening = false;
-                        ResetValidity();
-                    }
-                }
-                /// <summary>
-                /// 
-                /// </summary>
-                private void ResetValidity()
-                {
-                    singleTapValid = false;
-                    doubleTapValid = false;
-                    longPressValid = false;
-                }
-                /// <summary>
-                /// Returns the validity of the input gesture
-                /// </summary>
-                /// <returns></returns>
-                public bool Valid(GestureType gestureType)
-                {
-                    switch (gestureType)
-                    {
-                        case GestureType.DoubleTap:
-                            return doubleTapValid;
-                        case GestureType.LongPress:
-                            return longPressValid;
-                        case GestureType.SingleTap:
-                            return singleTapValid;
-                        default:
-                            return false;
-                    }
-                }
-            }
-            /// <summary>
-            /// Sets the state of the different inputs
-            /// </summary>
-            /// <param name="leftDownState"></param>
-            /// <param name="leftUpState"></param>
-            /// <param name="rightDownState"></param>
-            /// <param name="rightUpState"></param>
-            public void SetState(bool leftDownState, bool leftUpState, bool rightDownState, bool rightUpState)
-            {
-                left.SetState(leftDownState, leftUpState);
-                right.SetState(rightDownState, rightUpState);
-            }
-            /// <summary>
-            /// Returns the state of the interrogated input gesture
-            /// </summary>
-            /// <param name="gestureType"></param>
-            /// <param name="check"></param>
-            /// <returns></returns>
-            public bool State(InputGesture.GestureType gestureType, Check check)
-            {
-                switch (check)
-                {
-                    case Check.Left:
-                        return left.Valid(gestureType);
-                    case Check.Right:
-                        return right.Valid(gestureType);
-                    case Check.Head:
-                        return false;
-                    default:
-                        return false;
-                }
-            }
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="gestureType"></param>
-            /// <param name="check"></param>
-            /// <returns></returns>
-            public bool State(InputGesture.GestureType gestureType, out Check check)
-            {
-                check = Check.Head;
-                if (left.Valid(gestureType))
-                {
-                    check = Check.Left;
-                    return true;
-                }
-                if (right.Valid(gestureType))
-                {
-                    check = Check.Right;
-                    return true;
-                }
-                return false;
-            }
-        }
         private void Awake()
+        {
+            CreateConstructionObjects();
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        private void CreateConstructionObjects()
         {
             bimanualMidpoint = Set.Object(gameObject, "[Bimanual Midpoint]", Vector3.zero).transform;
         }
+        
         private void Update()
         {
             SetBimanualTransform();
@@ -434,7 +79,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             SetGestureEvents();
             SetValueDeltas();
         }
-
+        
         private Vector3 BimanualForwardVector => Position(Check.Right) - Position(Check.Left);
         private Vector3 BimanualUpwardVector => Vector3.Lerp(Transform(Check.Right).up, Transform(Check.Left).up, .5f);
         /// <summary>
@@ -470,9 +115,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             axisRight.SetState(leftState: AxisRight(InputDevice(Check.Left)), rightState: AxisRight(InputDevice(Check.Right)));
             axisCenter.SetState(leftState: AxisCenter(InputDevice(Check.Left)), rightState: AxisCenter(InputDevice(Check.Right)));
             primaryTouchEvents.SetState(leftState: Touch(Check.Left, TouchType.PrimaryInput), rightState: Touch(Check.Right, TouchType.PrimaryInput));           
-            analogTouchEvents.SetState(leftState: Touch(Check.Left, TouchType.TruncatedAnalogInput), rightState: Touch(Check.Right, TouchType.TruncatedAnalogInput));
-            analogClickEvents.SetState(leftState: AxisClick(Check.Left), rightState: touchpadSegmentation.TouchstripClick());
-            nibPress.SetState(PrimaryValue(Check.Left) >= threshold, PrimaryValue(Check.Right) >= threshold);
+            analogTouchEvents.SetState(leftState: Touch(Check.Left, TouchType.AnalogInput), rightState: Touch(Check.Right, TouchType.AnalogInput));
         }
         /// <summary>
         /// 
@@ -482,26 +125,24 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             analogGestures.SetState(
                 leftDownState: InputEvent(Event.AnalogTouch).State(
                     Check.Left, 
-                    Transition.Down),
+                    InputEvents.InputEvent.Transition.Down),
                 leftUpState: InputEvent(Event.AnalogTouch).State(
                     Check.Left, 
-                    Transition.Up),
+                    InputEvents.InputEvent.Transition.Up),
                 rightDownState: InputEvent(Event.AnalogTouch).State(
                     Check.Right, 
-                    Transition.Down),
+                    InputEvents.InputEvent.Transition.Down),
                 rightUpState: InputEvent(Event.AnalogTouch).State(
                     Check.Right, 
-                    Transition.Up));
+                    InputEvents.InputEvent.Transition.Up));
         }
         /// <summary>
         /// 
         /// </summary>
         private void SetValueDeltas()
         {
-            analogDeltas.SetDelta(
-                dominant: AxisValue(check: DominantHand(), truncated: dominantHandAbstraction == DominantHandAbstraction.TouchpadAbstraction).y, dominantTouch: InputEvent(Event.AnalogTouch).State(DominantHand(), Transition.Stay), 
-                nonDominant: AxisValue(check: NonDominantHand()).y, nonDominantTouch: true /*InputEvent(Event.AnalogTouch).State(NonDominantHand(), Transition.Stay)*/);
-            interControllerDistance.SetDelta(InterControllerDistance(), true, InterControllerDistance(), true);
+            analogDeltas.SetDelta(AxisValue(DominantHand()).y, AxisValue(NonDominantHand()).y);
+            interControllerDistance.SetDelta(InterControllerDistance(), InterControllerDistance());
         }
         /// <summary>
         /// Returns the input device that is queried 
@@ -530,9 +171,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             GripPress, 
             TriggerPress,
             PrimaryTouch,
-            AnalogTouch,
-            AnalogClick,
-            NibPress
+            AnalogTouch
         }
         /// <summary>
         /// An abstracted accessor to get each of the defined input events
@@ -551,10 +190,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
                     return analogTouchEvents;
                 case Event.PrimaryTouch:
                     return primaryTouchEvents;
-                case Event.AnalogClick:
-                    return analogClickEvents;
-                case Event.NibPress:
-                    return nibPress;
                 default:
                     return null;
             }
@@ -791,27 +426,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
         {
             return local ? headTransform.localEulerAngles : headTransform.eulerAngles;
         }
-        /*
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="device"></param>
-        /// <returns></returns>
-        private static bool Grab(InputDevice device)
-        {
-            device.TryGetFeatureValue(CommonUsages.gripButton, out bool state);
-            return state;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="device"></param>
-        /// <returns></returns>
-        private static bool Select(InputDevice device)
-        {
-            device.TryGetFeatureValue(CommonUsages.triggerButton, out bool state);
-            return state;
-        }*/
         /// <summary>
         /// 
         /// </summary>
@@ -935,10 +549,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
         /// 
         /// </summary>
         /// <returns></returns>
-        public Vector2 AxisValue(Check check, bool truncated = false)
-        {
-            return truncated && check == DominantHand() ? touchpadSegmentation.TouchstripValue() : AxisValue(InputDevice(check));
-        }
+        public Vector2 AxisValue(Check check) => AxisValue(InputDevice(check));
+
         /// <summary>
         /// 
         /// </summary>
@@ -1046,7 +658,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
                     return false;
             }
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -1079,18 +690,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public bool Grab(Check check)
-        {
-            switch (dominantHandAbstraction)
-            {
-                case DominantHandAbstraction.XRToolkitEvents:
-                    return ControllerButton(XRControllerButton.Grip, check);
-                case DominantHandAbstraction.TouchpadAbstraction when check == DominantHand():
-                    return touchpadSegmentation.Grab();
-                default:
-                    return ControllerButton(XRControllerButton.Grip, check);
-            }
-        }
+        public bool Grab(Check check) => ControllerButton(XRControllerButton.Grip, check);
         /// <summary>
         /// 
         /// </summary>
@@ -1116,18 +716,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public bool Select(Check check)
-        {
-            switch (dominantHandAbstraction)
-            {
-                case DominantHandAbstraction.XRToolkitEvents:
-                    return ControllerButton(XRControllerButton.Trigger, check);
-                case DominantHandAbstraction.TouchpadAbstraction when check == DominantHand():
-                    return touchpadSegmentation.Select();
-                default:
-                    return ControllerButton(XRControllerButton.Trigger, check);
-            }
-        }
+        public bool Select(Check check) => ControllerButton(XRControllerButton.Trigger, check);
         /// <summary>
         /// 
         /// </summary>
@@ -1195,12 +784,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             InputDevice(check).TryGetFeatureValue(CommonUsages.primary2DAxisClick, out bool valid);
             return valid;
         }
-        public enum TouchType
-        {
-            PrimaryInput,
-            AnalogInput,
-            TruncatedAnalogInput
-        }
+        public enum TouchType { PrimaryInput, AnalogInput }
         /// <summary>
         /// 
         /// </summary>
@@ -1215,8 +799,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
                     return PrimaryTouch(InputDevice(check));
                 case TouchType.AnalogInput:
                     return AxisTouch(InputDevice(check));
-                case TouchType.TruncatedAnalogInput:
-                    return check == DominantHand() ? TouchpadSegmentation().TouchstripTouch() : AxisTouch(InputDevice(check));
                 default:
                     return false;
             }
@@ -1327,14 +909,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
         public Vector3 NormalisedRotation(Check check, bool local = false)
         {
             return new Vector3(0, Rotation(check, local).y, 0f);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public TouchpadSegmentation TouchpadSegmentation()
-        {
-            return touchpadSegmentation;
         }
     }
 }

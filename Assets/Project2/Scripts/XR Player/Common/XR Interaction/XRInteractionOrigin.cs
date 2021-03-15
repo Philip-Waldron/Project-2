@@ -1,11 +1,9 @@
-﻿using System;
-using Project2.Scripts.XR_Player.Common.XR_Input;
+﻿using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
+using XR_Prototyping.Scripts.Common;
 using XR_Prototyping.Scripts.Common.XR_Input;
-using XR_Prototyping.Scripts.Utilities;
-using XR_Prototyping.Scripts.Utilities.XR_Debug;
 
-namespace XR_Prototyping.Scripts.Common
+namespace Project2.Scripts.XR_Player.Common.XR_Interaction
 {
     public class XRInteractionOrigin : XRInputAbstraction
     {

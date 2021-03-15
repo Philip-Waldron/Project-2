@@ -1,5 +1,6 @@
 ﻿using System;
 using Project2.Scripts.XR_Player.Common.XR_Input;
+using Project2.Scripts.XR_Player.Common.XR_Manipulation;
 using UnityEngine;
 using UnityEngine.UI;
 using XR_Prototyping.Scripts.Common.XR_Input;

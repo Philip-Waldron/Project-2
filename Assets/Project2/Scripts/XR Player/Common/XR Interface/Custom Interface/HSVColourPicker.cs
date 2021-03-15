@@ -1,13 +1,12 @@
-using System;
 using Project2.Scripts.XR_Player.Common.XR_Input;
+using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
 using UnityEngine.UI;
-using XR_Prototyping.Scripts.Common.XR_Input;
-using XR_Prototyping.Scripts.Common.XR_Interface.State_Transition;
+using XR_Prototyping.Scripts.Common.XR_Interface.Custom_Interface;
 using XR_Prototyping.Scripts.Utilities.Generic;
 using Slider = XR_Prototyping.Scripts.Common.XR_Interface.Unity_Interface_Abstractions.Slider;
 
-namespace XR_Prototyping.Scripts.Common.XR_Interface.Custom_Interface
+namespace Project2.Scripts.XR_Player.Common.XR_Interface.Custom_Interface
 {
     [RequireComponent(typeof(HSVColour))]
     public class HSVColourPicker : Slider
@@ -146,7 +145,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Interface.Custom_Interface
         /// <returns></returns>
         private bool LatchStart(XRInputController.Check check)
         {
-            return XRInputController.InputEvent(triggerEvent).State(check, XRInputController.InputEvents.InputEvent.Transition.Down);
+            return XRInputController.InputEvent(triggerEvent).State(check, InputEvents.InputEvent.Transition.Down);
         }
         /// <summary>
         /// 
@@ -155,7 +154,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Interface.Custom_Interface
         /// <returns></returns>
         private bool LatchEnd(XRInputController.Check check)
         {
-            return XRInputController.InputEvent(triggerEvent).State(check, XRInputController.InputEvents.InputEvent.Transition.Up);
+            return XRInputController.InputEvent(triggerEvent).State(check, InputEvents.InputEvent.Transition.Up);
         }
         /// <summary>
         /// 

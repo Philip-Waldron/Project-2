@@ -1,13 +1,12 @@
-﻿using System.Linq;
+﻿using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
+using XR_Prototyping.Scripts.Common.XR_Interface.XR_Menu;
 using XR_Prototyping.Scripts.Common.XR_Interface.XR_Menu.Menu_Type;
 using XR_Prototyping.Scripts.Utilities.Generic;
-using Transition =  Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.InputEvents.InputEvent.Transition;
 using Event =  Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Event;
-using GestureType =  Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.InputGestures.InputGesture.GestureType;
 using Gesture =  Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Gesture;
 
-namespace XR_Prototyping.Scripts.Common.XR_Interface.XR_Menu
+namespace Project2.Scripts.XR_Player.Common.XR_Interface.XR_Menu
 {
     public class SummonedMenuController : XRMenu
     {
@@ -53,15 +52,13 @@ namespace XR_Prototyping.Scripts.Common.XR_Interface.XR_Menu
             switch (menuType.triggerType)
             {
                 case MenuType.TriggerType.DoubleTap:
-                    return valid && XRInputController.InputGesture(Gesture.AnalogGesture).State(gestureType: GestureType.DoubleTap, check: XRInputController.CheckHand(menuType.triggerHand));
+                    return valid && XRInputController.InputGesture(Gesture.AnalogGesture).State(gestureType: InputGestures.InputGesture.GestureType.DoubleTap, check: XRInputController.CheckHand(menuType.triggerHand));
                 case MenuType.TriggerType.SingleTap:
-                    return valid && XRInputController.InputGesture(Gesture.AnalogGesture).State(gestureType: GestureType.SingleTap, check: XRInputController.CheckHand(menuType.triggerHand));
+                    return valid && XRInputController.InputGesture(Gesture.AnalogGesture).State(gestureType: InputGestures.InputGesture.GestureType.SingleTap, check: XRInputController.CheckHand(menuType.triggerHand));
                 case MenuType.TriggerType.LongPress:
-                    return valid && XRInputController.InputGesture(Gesture.AnalogGesture).State(gestureType: GestureType.LongPress, check: XRInputController.CheckHand(menuType.triggerHand));
-                case MenuType.TriggerType.TouchpadClick:
-                    return valid && XRInputController.InputEvent(Event.AnalogClick).State(XRInputController.CheckHand(menuType.triggerHand), Transition.Up);
+                    return valid && XRInputController.InputGesture(Gesture.AnalogGesture).State(gestureType: InputGestures.InputGesture.GestureType.LongPress, check: XRInputController.CheckHand(menuType.triggerHand));
                 case MenuType.TriggerType.ControllerButton:
-                    return valid && XRInputController.InputEvent(menuType.controllerButton).State(XRInputController.CheckHand(menuType.triggerHand), Transition.Up);
+                    return valid && XRInputController.InputEvent(menuType.controllerButton).State(XRInputController.CheckHand(menuType.triggerHand), InputEvents.InputEvent.Transition.Up);
                 case MenuType.TriggerType.PointAt:
                     return valid && XRInputController.Forward(menuType.pointTrigger).PointingAt(lookTarget.forward, menuType.threshold);
                 default:

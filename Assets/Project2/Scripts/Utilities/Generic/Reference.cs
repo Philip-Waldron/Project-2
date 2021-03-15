@@ -1,7 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Project2.Scripts.Utilities.XR_Debug;
+using Project2.Scripts.XR_Player.Common.Feedback;
 using Project2.Scripts.XR_Player.Common.XR_Input;
+using Project2.Scripts.XR_Player.Common.XR_Interaction;
 using Project2.Scripts.XR_Player.Common.XR_Interface;
+using Project2.Scripts.XR_Player.Common.XR_Manipulation;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common;
 using XR_Prototyping.Scripts.Common.Feedback;

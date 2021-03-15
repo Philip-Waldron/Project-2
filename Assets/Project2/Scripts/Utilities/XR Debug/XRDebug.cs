@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using TMPro;
 using UnityEngine;
-using XR_Prototyping.Scripts.Common;
 using XR_Prototyping.Scripts.Common.XR_Input;
 using XR_Prototyping.Scripts.Utilities.Generic;
+using XR_Prototyping.Scripts.Utilities.XR_Debug;
 
-namespace XR_Prototyping.Scripts.Utilities.XR_Debug 
+namespace Project2.Scripts.Utilities.XR_Debug 
 {
 	public class XRDebug : XRInputAbstraction
 	{

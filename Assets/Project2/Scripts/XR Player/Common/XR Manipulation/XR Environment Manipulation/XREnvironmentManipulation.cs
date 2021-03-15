@@ -1,15 +1,13 @@
-using System;
-using System.Linq;
 using Project2.Scripts.XR_Player.Common.XR_Input;
-using Project2.Scripts.XR_Player.Common.XR_Manipulation.XR_Environment_Manipulation;
+using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common.XR_Input;
+using XR_Prototyping.Scripts.Common.XR_Manipulation;
 using XR_Prototyping.Scripts.Utilities.Generic;
-using Transition = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.InputEvents.InputEvent.Transition;
 using Check = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Check;
 using XRControllerButton = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.XRControllerButton;
 
-namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulation
+namespace Project2.Scripts.XR_Player.Common.XR_Manipulation.XR_Environment_Manipulation
 {
     public class XREnvironmentManipulation : XRInputAbstraction
     {
@@ -173,11 +171,10 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulat
                 // environment.SetManipulationParent(ClampScaling() ? bimanualManipulationProxy : scalingBimanualProxy);
             }
             // If you are able to swap hands
-            if (CanSwap && XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, Transition.Up))
+            if (CanSwap && XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, InputEvents.InputEvent.Transition.Up))
             {
                 environmentManipulationCheck = BimanualManipulationCheck;
                 scalingProxy.transform.SetParent(ManipulationProxy(environmentManipulationCheck));
-                // environment.SetManipulationParent(ManipulationProxy(environmentManipulationCheck));
                 SetParent(ManipulationProxy(environmentManipulationCheck));
             }
         }
@@ -252,7 +249,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulat
         /// <returns></returns>
         private bool EnvironmentalManipulationTriggerStart()
         {
-            bool grabbed = XRInputController.InputEvent(XRControllerButton.Grip).State(Transition.Down, out Check grabHand);
+            bool grabbed = XRInputController.InputEvent(XRControllerButton.Grip).State(InputEvents.InputEvent.Transition.Down, out Check grabHand);
             
             switch (environmentalManipulationType.manipulationTrigger)
             {
@@ -270,13 +267,13 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulat
                     {
                         // todo this could be made to equal Transition.Stay
                         // If you release the hand you originally grabbed with
-                        if (XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, Transition.Up))
+                        if (XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, InputEvents.InputEvent.Transition.Up))
                         {
                             BimanualListening = false;
                             return false;
                         }
                         // You have grabbed with the other hand
-                        if (XRInputController.InputEvent(XRControllerButton.Grip).State(BimanualManipulationCheck, Transition.Down))
+                        if (XRInputController.InputEvent(XRControllerButton.Grip).State(BimanualManipulationCheck, InputEvents.InputEvent.Transition.Down))
                         {
                             return true;
                         }
@@ -303,9 +300,9 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulat
             switch (environmentalManipulationType.manipulationTrigger)
             {
                 case XREnvironmentalManipulationType.ManipulationTrigger.Unimanual:
-                    return XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, Transition.Up); 
+                    return XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, InputEvents.InputEvent.Transition.Up); 
                 case XREnvironmentalManipulationType.ManipulationTrigger.Bimanual:
-                    return XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, Transition.Up); 
+                    return XRInputController.InputEvent(XRControllerButton.Grip).State(environmentManipulationCheck, InputEvents.InputEvent.Transition.Up); 
                 case XREnvironmentalManipulationType.ManipulationTrigger.BimanualOnly:
                     return !BimanualGrabbing;
                 default:
@@ -318,7 +315,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulat
         /// <returns></returns>
         private bool EnvironmentalBimanualManipulationTriggerStart()
         {
-            return XRInputController.InputEvent(XRControllerButton.Grip).State(BimanualManipulationCheck, Transition.Down);
+            return XRInputController.InputEvent(XRControllerButton.Grip).State(BimanualManipulationCheck, InputEvents.InputEvent.Transition.Down);
         }
         /// <summary>
         /// 
@@ -326,7 +323,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation.XR_Environment_Manipulat
         /// <returns></returns>
         private bool EnvironmentalBimanualManipulationTriggerEnd()
         {
-            return XRInputController.InputEvent(XRControllerButton.Grip).State(BimanualManipulationCheck, Transition.Up);
+            return XRInputController.InputEvent(XRControllerButton.Grip).State(BimanualManipulationCheck, InputEvents.InputEvent.Transition.Up);
         }
 
         /// <summary>

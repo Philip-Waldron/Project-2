@@ -1,3 +1,4 @@
+using Project2.Scripts.Utilities.XR_Debug;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common.XR_Input;
 

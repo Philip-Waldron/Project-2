@@ -1,8 +1,8 @@
 ﻿using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
-using XR_Prototyping.Scripts.Common.XR_Input;
+using XR_Prototyping.Scripts.Common.XR_Interface;
 
-namespace XR_Prototyping.Scripts.Common.XR_Interface.Unity_Interface_Abstractions
+namespace Project2.Scripts.XR_Player.Common.XR_Interface.Unity_Interface_Abstractions
 {
     [RequireComponent(typeof(UnityEngine.UI.ScrollRect))]
     [RequireComponent(typeof(BoxCollider))]
@@ -46,7 +46,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Interface.Unity_Interface_Abstraction
             if (interfaceType != InterfaceType.Anchored) return;
             if (XRInputController.AxisDirection(XRInputController.NonDominantHand(), XRInputController.Cardinal.Forward) || XRInputController.AxisDirection(XRInputController.NonDominantHand(), XRInputController.Cardinal.Back))
             {
-                VerticalScrolling(ScrollDirection.Direct, XRInputController.AxisValue(XRInputController.NonDominantHand(), truncated: true).y * anchoredScrollMultiplier);
+                VerticalScrolling(ScrollDirection.Direct, XRInputController.AxisValue(XRInputController.NonDominantHand()).y * anchoredScrollMultiplier);
             }
         }
 
@@ -97,7 +97,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Interface.Unity_Interface_Abstraction
                 case ScrollType.Delta:
                     return XRInputController.ValueDelta(XRInputController.Delta.PrimaryAxis).GetDelta(check) * scrollMultiplier;
                 case ScrollType.Hold:
-                    return XRInputController.AxisValue(check, truncated: true).y * scrollMultiplier;
+                    return XRInputController.AxisValue(check).y * scrollMultiplier;
                 default:
                     return value;
             }

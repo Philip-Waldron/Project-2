@@ -1,15 +1,17 @@
 ﻿using System;
+using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
+using XR_Prototyping.Scripts.Common;
 using XR_Prototyping.Scripts.Common.XR_Input;
+using XR_Prototyping.Scripts.Common.XR_Interaction;
 using XR_Prototyping.Scripts.Common.XR_Interface;
 using XR_Prototyping.Scripts.Utilities;
 using XR_Prototyping.Scripts.Utilities.Generic;
-using Transition = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.InputEvents.InputEvent.Transition;
 using Check = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Check;
 using Event = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Event;
 using Information = XR_Prototyping.Scripts.Utilities.IndirectInteraction.InteractionInformation;
 
-namespace XR_Prototyping.Scripts.Common.XR_Interaction
+namespace Project2.Scripts.XR_Player.Common.XR_Interaction
 {
     [Serializable] public class InteractionElement : XRInputAbstraction
     {
@@ -113,15 +115,15 @@ namespace XR_Prototyping.Scripts.Common.XR_Interaction
 
             interactionElement.currentXRInterface = information.currentXRInterface;
                     
-            if (XRInputController.InputEvent(Event.TriggerPress).State(interactionElement.check, Transition.Down))
+            if (XRInputController.InputEvent(Event.TriggerPress).State(interactionElement.check, InputEvents.InputEvent.Transition.Down))
             {
                 information.currentXRInterface.SelectStart(interactionElement.check);
             }
-            if (XRInputController.InputEvent(Event.TriggerPress).State(interactionElement.check, Transition.Stay))
+            if (XRInputController.InputEvent(Event.TriggerPress).State(interactionElement.check, InputEvents.InputEvent.Transition.Stay))
             {
                 information.currentXRInterface.SelectStay(interactionElement.check);
             }
-            if (XRInputController.InputEvent(Event.TriggerPress).State(interactionElement.check, Transition.Up))
+            if (XRInputController.InputEvent(Event.TriggerPress).State(interactionElement.check, InputEvents.InputEvent.Transition.Up))
             {
                 information.currentXRInterface.SelectEnd(interactionElement.check);
             }

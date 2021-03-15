@@ -17,7 +17,6 @@ namespace XR_Prototyping.Scripts.Common.XR_Interface.XR_Menu.Menu_Type
         {
             Persistent,
             PointAt,
-            TouchpadClick,
             DoubleTap,
             LongPress,
             SingleTap,

@@ -1,5 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using XR_Prototyping.Scripts.Common;
 using XR_Prototyping.Scripts.Common.XR_Input;
 using XR_Prototyping.Scripts.Common.XR_Interface;
 using XR_Prototyping.Scripts.Utilities;
@@ -7,7 +7,7 @@ using XR_Prototyping.Scripts.Utilities.Generic;
 using Check = Project2.Scripts.XR_Player.Common.XR_Input.XRInputController.Check;
 using Information = XR_Prototyping.Scripts.Utilities.IndirectInteraction.InteractionInformation;
 
-namespace XR_Prototyping.Scripts.Common.XR_Interaction
+namespace Project2.Scripts.XR_Player.Common.XR_Interaction
 {
     public class XRInteractionController : XRInputAbstraction
     {
@@ -21,7 +21,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Interaction
 
         private const float MinimumDistance = float.Epsilon;
 
-        private Elements.InteractionElement
+        private Project2.Scripts.XR_Player.Common.Elements.InteractionElement
             leftInteractionElement,
             rightInteractionElement;
 
@@ -29,8 +29,8 @@ namespace XR_Prototyping.Scripts.Common.XR_Interaction
         {
             GameObject interactionController = gameObject;
             
-            leftInteractionElement = interactionController.AddComponent<Elements.InteractionElement>();
-            rightInteractionElement = interactionController.AddComponent<Elements.InteractionElement>();
+            leftInteractionElement = interactionController.AddComponent<Project2.Scripts.XR_Player.Common.Elements.InteractionElement>();
+            rightInteractionElement = interactionController.AddComponent<Project2.Scripts.XR_Player.Common.Elements.InteractionElement>();
             
             leftInteractionElement.InitialiseInteractionElement(
                 handedness: Check.Left,
@@ -74,7 +74,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Interaction
                 if (right && rightInteractionElement.Allowed)
                 {
                     rightInteractionElement.Information = rightInformation;
-                    Elements.InteractionElement.InteractionLogic(rightInteractionElement, rightInformation);
+                    Project2.Scripts.XR_Player.Common.Elements.InteractionElement.InteractionLogic(rightInteractionElement, rightInformation);
                 }
                 else
                 {
@@ -162,12 +162,13 @@ namespace XR_Prototyping.Scripts.Common.XR_Interaction
         {
             GetInteractionElement(check).SetInteractionOrigin(origin);
         }
+        
         public XRInteractionOrigin GetXRInteractionOrigin(Check check)
         {
             return GetInteractionElement(check).GetInteractionOrigin();
         }
 
-        private Elements.InteractionElement GetInteractionElement(Check check)
+        private Project2.Scripts.XR_Player.Common.Elements.InteractionElement GetInteractionElement(Check check)
         {
             switch (check)
             {
