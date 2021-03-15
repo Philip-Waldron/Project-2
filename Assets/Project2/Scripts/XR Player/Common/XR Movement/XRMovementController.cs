@@ -12,89 +12,26 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
     public class XRMovementController : XRInputAbstraction
     {
-        [Serializable] public struct MovementInformation
-        {
-            public XRInputController.Check check;
-            public LineRenderer connection;
-
-            private RaycastHit validPoint, attachedPoint;
-            
-            private Transform origin, hit, midpoint;
-
-            private Vector3 ControllerPosition => XRInputController.Position(check);
-            public Vector3 Origin => origin.position;
-            public Vector3 CastVector => origin.forward;
-            public Vector3 MoveVector => (hit.transform.position - Origin).normalized;
-
-            public bool Attached { get; set; }
-            private HingeJoint hingeJoint;
-
-            public void SetupMovementInformation(GameObject parent, XRInputController.Check set, float offset, Material material, float width, Rigidbody player)
-            {
-                check = set;
-                origin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
-                hit = Set.Object(parent, $"[Movement Hit] {set.ToString()}", position: Vector3.zero).transform;
-                midpoint = Set.Object(parent, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
-                
-                connection = origin.gameObject.Line(material, width);
-            }
-
-            public void SetTransform(float hipOffset, float heightOffset)
-            {
-                origin.LookAt(ControllerPosition);
-                origin.localPosition = new Vector3(hipOffset, 0f, -.01f);
-                Vector3 position = origin.position;
-                position = new Vector3(position.x, XRInputController.Position(XRInputController.Check.Head).y - heightOffset, position.z);
-                origin.position = position;
-                midpoint.LerpMidpoint(origin, hit, .3f);
-            }
-
-            public void SetAttachPoint(RaycastHit raycastHit)
-            {
-                validPoint = raycastHit;
-                if (Attached) return;
-                hit.position = Vector3.Lerp(hit.position, raycastHit.point, .5f);
-            }
-
-            public void ClearAttachPoint()
-            {
-                hit.position = ControllerPosition;
-            }
-
-            public void AttachVisual()
-            {
-                connection.BezierLine(origin.position, midpoint.position, hit.position);
-            }
-
-            public void Attach()
-            {
-                Attached = true;
-                attachedPoint = validPoint;
-            }
-
-            public void Detach()
-            {
-                Attached = false;
-            }
-        }
-
         [Header("Movement Settings")]
-        [SerializeField, Range(0f, 10f)] private float force;
+        [SerializeField, Range(0f, 100f)] private float force;
         [SerializeField, Range(0f, 1f)] private float hipOffset = .15f, headOffset = .75f;
         [SerializeField, Range(float.Epsilon, .01f)] private float connectionWidth;
+        [SerializeField] private XRInputController.XRControllerButton attach = XRInputController.XRControllerButton.Grip, move = XRInputController.XRControllerButton.Trigger;
         [Header("Movement References")] 
         [SerializeField] private Material connectionMaterial;
         
         private GameObject movementParent;
-        private MovementInformation left, right;
+        private XRMovementInformation left, right;
 
         private Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
 
         private void Awake()
         {
             movementParent = Set.Object(gameObject, "[Movement Parent]", Vector3.zero);
-            left.SetupMovementInformation(movementParent, XRInputController.Check.Left, - hipOffset, connectionMaterial, connectionWidth, PlayerRigidbody);
-            right.SetupMovementInformation(movementParent, XRInputController.Check.Right, hipOffset, connectionMaterial, connectionWidth, PlayerRigidbody);
+            left = gameObject.AddComponent<XRMovementInformation>();
+            right = gameObject.AddComponent<XRMovementInformation>();
+            left.SetupMovementInformation(movementParent, XRInputController.Check.Left, - hipOffset, connectionMaterial, connectionWidth);
+            right.SetupMovementInformation(movementParent, XRInputController.Check.Right, hipOffset, connectionMaterial, connectionWidth);
         }
 
         private void Update()
@@ -127,7 +64,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             MoveToAnchor(right);
         }
 
-        private static void FindValidAnchor(MovementInformation movementInformation)
+        private static void FindValidAnchor(XRMovementInformation movementInformation)
         {
             if (Physics.Raycast(movementInformation.Origin, movementInformation.CastVector, out RaycastHit hit) && hit.transform.CompareTag("CanAttach"))
             {
@@ -141,25 +78,24 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             movementInformation.AttachVisual();
         }
 
-        private static void AttachDetach(MovementInformation movementInformation)
-        {
-            if (XRInputController.InputEvent(XRInputController.XRControllerButton.Grip).State(movementInformation.check, InputEvents.InputEvent.Transition.Down))
-            {
-                movementInformation.Attach();
-            }
-            if (XRInputController.InputEvent(XRInputController.XRControllerButton.Grip).State(movementInformation.check, InputEvents.InputEvent.Transition.Up))
+        private void AttachDetach(XRMovementInformation movementInformation)
+        { 
+            if (movementInformation.Attached && XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
             {
                 movementInformation.Detach();
             }
+            if (XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Down))
+            {
+                movementInformation.Attach();
+            }
         }
         
-        private void MoveToAnchor(MovementInformation movementInformation)
+        private void MoveToAnchor(XRMovementInformation movementInformation)
         {
-            if (!movementInformation.Attached) return;
-            
-            if (XRInputController.InputEvent(XRInputController.XRControllerButton.Trigger).State(movementInformation.check, InputEvents.InputEvent.Transition.Stay))
+            if (movementInformation.Attached && XRInputController.ControllerButton(move, movementInformation.check))
             {
                 PlayerRigidbody.AddForce(movementInformation.MoveVector * force, ForceMode.Acceleration);
+                Debug.DrawRay(movementInformation.Origin, movementInformation.MoveVector * force, Color.red);
             }
         }
     }

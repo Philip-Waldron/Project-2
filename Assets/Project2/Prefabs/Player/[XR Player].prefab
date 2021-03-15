@@ -157,13 +157,9 @@ MonoBehaviour:
   hipOffset: 0.125
   headOffset: 0.75
   connectionWidth: 0.0075
+  attach: 0
+  move: 1
   connectionMaterial: {fileID: 2100000, guid: 27f831b2753b430439503b19b509e829, type: 2}
-  left:
-    check: 0
-    connection: {fileID: 0}
-  right:
-    check: 0
-    connection: {fileID: 0}
 --- !u!54 &6395249360161783834
 Rigidbody:
   m_ObjectHideFlags: 0
