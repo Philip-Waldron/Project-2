@@ -38,11 +38,12 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         {
             SetTransforms();
             FindValidAnchors();
+            CheckStates();
         }
 
         private void FixedUpdate()
         {
-            CheckStates();
+            
         }
 
         private void SetTransforms()
@@ -83,14 +84,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         }
 
         private void AttachDetach(XRMovementInformation movementInformation)
-        { 
-            if (movementInformation.Attached && XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
-            {
-                movementInformation.Detach();
-            }
+        {
             if (XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Down))
             {
                 movementInformation.Attach();
+            }
+            if (movementInformation.Attached && XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
+            {
+                movementInformation.Detach();
             }
         }
         

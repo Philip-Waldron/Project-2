@@ -33,11 +33,13 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 midpoint = Set.Object(null, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
                 connection = origin.gameObject.Line(material, width);
                 playerRigidbody = player;
-                ConfigurableJoint = parent.AddComponent<ConfigurableJoint>();
+                ConfigurableJoint = player.gameObject.AddComponent<ConfigurableJoint>();
             }
 
             private void Update()
             {
+                return;
+                
                 if (!Attached) return;
                 
                 ConfigurableJoint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
@@ -86,11 +88,9 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 attachedPoint = validPoint;
                 hit.position = attachedPoint.point;
                 hit.SetParent(attachedPoint.transform);
-
-                ConfigurableJoint = attachedPoint.transform.gameObject.AddComponent<ConfigurableJoint>();
-                ConfigurableJoint.connectedBody = playerRigidbody;
                 
-                ConfigurableJoint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
+                ConfigurableJoint.connectedBody = attachedPoint.rigidbody;
+                ConfigurableJoint.connectedAnchor = attachedPoint.transform.InverseTransformPoint(hit.position);
                 
                 ConfigurableJoint.linearLimit = new SoftJointLimit()
                 {
