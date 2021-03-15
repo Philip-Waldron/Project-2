@@ -12,7 +12,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         
         public Collider Collider => GetComponent<Collider>();
         public Rigidbody Rigidbody { get; private set; }
-
+        public HingeJoint HingeJoint => GetComponent<HingeJoint>();
+        
         private Outline outline;
 
         private void Awake()
@@ -32,9 +33,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             
         }
 
-        public void Attach()
+        public void Attach(Rigidbody player)
         {
-            
+            HingeJoint.connectedBody = player;
+        }
+        
+        public void Detach()
+        {
+            HingeJoint.connectedBody = null;
         }
     }
 }

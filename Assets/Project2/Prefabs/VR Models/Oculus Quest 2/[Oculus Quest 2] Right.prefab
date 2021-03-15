@@ -256,7 +256,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3859147719066497547}
   - component: {fileID: 8339611366200662499}
-  - component: {fileID: 7089289708562834177}
   m_Layer: 0
   m_Name: '[Oculus Quest 2] Right'
   m_TagString: Untagged
@@ -294,19 +293,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   origin: {fileID: 7798470737107236405}
---- !u!114 &7089289708562834177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4523200397686859953}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d49c593fc6294a00b4cd48f76dba9727, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interfaces: []
 --- !u!1 &4631089379928791279
 GameObject:
   m_ObjectHideFlags: 0

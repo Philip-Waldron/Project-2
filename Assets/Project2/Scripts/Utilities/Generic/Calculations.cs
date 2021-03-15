@@ -1,9 +1,7 @@
 ﻿using System;
 using UnityEngine;
-using XR_Prototyping.Scripts.Common.XR_Input;
-using XR_Prototyping.Scripts.Common.XR_Interface.Custom_Interface;
 
-namespace XR_Prototyping.Scripts.Utilities.Generic
+namespace Project2.Scripts.Utilities.Generic
 {
     public static class Calculations
     {
@@ -179,29 +177,6 @@ namespace XR_Prototyping.Scripts.Utilities.Generic
         public static bool PointingAt(this Vector3 pointingVector, Vector3 targetVector, float angle)
         { 
             return Aligned(targetVector, pointingVector, Alignment.FacingAway) && (180f - Vector3.Angle(targetVector, pointingVector)) <= angle;
-        }
-        /// <summary>
-        /// r = √ ( x2 + y2 ), θ = tan-1 ( y / x )
-        /// Converts (x, y) to (r, θ)
-        /// </summary>
-        /// <param name="cartesianCoordinate"></param>
-        /// <returns></returns>
-        public static CartesianPolarConverter.PolarCoordinates CartesianToPolar(Vector2 cartesianCoordinate)
-        {
-            return new CartesianPolarConverter.PolarCoordinates(
-                rValue: (float) Math.Sqrt(Math.Pow(cartesianCoordinate.x, 2) + Math.Pow(cartesianCoordinate.y, 2)),
-                θValue: (float) Math.Atan2(cartesianCoordinate.y, cartesianCoordinate.x));
-        }
-        /// <summary>
-        /// x = r × cos( θ ), y = r × sin( θ )
-        /// Converts (r, θ) to (x, y)
-        /// </summary>
-        /// <param name="polarCoordinate"></param>
-        /// <returns></returns>
-        public static Vector2 PolarToCartesian(CartesianPolarConverter.PolarCoordinates polarCoordinate)
-        {
-            float angleRad = (float) (Math.PI / 180.0) * ((polarCoordinate.θ * Mathf.Deg2Rad) - 90);
-            return new Vector2((float) (polarCoordinate.r * Math.Cos(angleRad)), (float) (polarCoordinate.r * Math.Sin(angleRad)));
         }
         /// <summary>
         /// 

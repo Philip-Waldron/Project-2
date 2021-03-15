@@ -26,7 +26,7 @@ Material:
     m_Colors:
     - Color_B12320CD: {r: 2.1185474, g: 0, b: 0.5324098, a: 0.19607843}
     - Color_E7FBBF2E: {r: 0, g: 0.52797985, b: 1, a: 0}
-    - _DH: {r: 0.36882395, g: 0.8051686, b: 0.38735762, a: 0}
+    - _DH: {r: 0.17933151, g: 1.4649982, b: 0.41853687, a: 0}
     - _DominantHandPosition: {r: -1, g: -1, b: 0, a: 0}
     - _Hand: {r: 0, g: 0, b: 0, a: 0}
     - _HighlightColour: {r: 0, g: 0.965132, b: 1, a: 0.57254905}

@@ -92,12 +92,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             bimanualMidpoint.ScaleFactor(InterControllerDistance());
             // Always make it align with the axis between the two controllers
             bimanualMidpoint.rotation = Quaternion.LookRotation(forward: BimanualForwardVector, upwards: BimanualUpwardVector);
-            // Visualise the bimanual midpoint
-            XRDebug.DrawRay(index: $"Bimanual Midpoint Forward", BimanualTransform().position, BimanualTransform().forward, .015f, Color.blue);
-            XRDebug.DrawRay(index: $"Bimanual Midpoint Right", BimanualTransform().position, BimanualTransform().right, .015f, Color.red);
-            XRDebug.DrawRay(index: $"Bimanual Midpoint Up", BimanualTransform().position, BimanualTransform().up, .015f, Color.green);
-            // Show the inter-controller distance
-            XRDebug.Log(index: $"Bimanual Controller Distance", $"\n \n \n \n[1 : {Math.Round(InterControllerDistance(), 2)}]", BimanualTransform().position, .035f);
         }
         /// <summary>
         /// 
