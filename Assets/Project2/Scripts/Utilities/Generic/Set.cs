@@ -158,6 +158,19 @@ namespace XR_Prototyping.Scripts.Utilities.Generic
         {
             target.position = Vector3.Lerp(target.position, destination.position, value);
         }
+
+        /// <summary>
+        /// Transform A will lerp to transform B's position
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="value"></param>
+        /// <param name="target"></param>
+        /// <param name="from"></param>
+        public static void LerpMidpoint(this Transform target, Transform from, Transform to, float value)
+        {
+            Vector3 midpoint = Vector3.Lerp(from.position, to.position, .5f);
+            target.position = Vector3.Lerp(target.position, midpoint, value);
+        }
         /// <summary>
         /// Transform A will lerp to transform B's rotation
         /// </summary>

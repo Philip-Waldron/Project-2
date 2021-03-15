@@ -15,6 +15,9 @@ GameObject:
   - component: {fileID: 1310230034373539787}
   - component: {fileID: 4503601100954210554}
   - component: {fileID: 4588231410452694167}
+  - component: {fileID: 9187127777268213059}
+  - component: {fileID: 6395249360161783834}
+  - component: {fileID: 3336247620417826493}
   m_Layer: 0
   m_Name: '[XR Player]'
   m_TagString: Player
@@ -238,6 +241,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugFont: {fileID: 11400000, guid: 8c42442c399615c4699e316a124985ae, type: 2}
   debugMaterial: {fileID: 2100000, guid: cb3db67f5be040a4e80621c4f6b0fba6, type: 2}
+--- !u!114 &9187127777268213059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3537935100338196466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7a112ca9ec267b4baf3a5ac911e5c56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  castRadius: 1
+  castDistance: 100
+  hipOffset: 0.25
+  connectionWidth: 0.001
+  connectionMaterial: {fileID: 2100000, guid: 27f831b2753b430439503b19b509e829, type: 2}
+--- !u!54 &6395249360161783834
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3537935100338196466}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 1
+  m_AngularDrag: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
+--- !u!136 &3336247620417826493
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3537935100338196466}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.25
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3537935100945000850
 GameObject:
   m_ObjectHideFlags: 0

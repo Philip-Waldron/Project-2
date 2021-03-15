@@ -114,21 +114,21 @@ namespace XR_Prototyping.Scripts.Utilities
         /// <summary>
 		/// Draws a bezier line renderer
 		/// </summary>
-		/// <param name="lr"></param>
-		/// <param name="p0"></param>
-		/// <param name="p1"></param>
-		/// <param name="p2"></param>
+		/// <param name="line"></param>
+		/// <param name="from"></param>
+		/// <param name="midpoint"></param>
+		/// <param name="to"></param>
 		/// <param name="segments"></param>
-		public static void BezierLine(this LineRenderer lr, Vector3 p0, Vector3 p1, Vector3 p2, int segments = 40)
+		public static void BezierLine(this LineRenderer line, Vector3 @from, Vector3 midpoint, Vector3 to, int segments = 40)
 		{
-			lr.positionCount = segments;
-			lr.SetPosition(0, p0);
-			lr.SetPosition(segments - 1, p2);
+			line.positionCount = segments;
+			line.SetPosition(0, @from);
+			line.SetPosition(segments - 1, to);
 
 			for (int i = 1; i < segments; i++)
 			{
-				Vector3 point = GetPoint(p0, p1, p2, i / (float) segments);
-				lr.SetPosition(i, point);
+				Vector3 point = GetPoint(@from, midpoint, to, i / (float) segments);
+				line.SetPosition(i, point);
 			}
 		}
 		/// <summary>
@@ -144,21 +144,16 @@ namespace XR_Prototyping.Scripts.Utilities
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="lr"></param>
-		/// <param name="focus"></param>
+		/// <param name="line"></param>
 		/// <param name="midpoint"></param>
-		/// <param name="controller"></param>
-		/// <param name="target"></param>
+		/// <param name="from"></param>
+		/// <param name="to"></param>
 		/// <param name="quality"></param>
-		public static void DrawCurvedLine(this LineRenderer lr, GameObject focus, GameObject midpoint, Transform controller, GameObject target, int quality)
+		public static void DrawCurvedLine(this LineRenderer line, GameObject midpoint, Transform from, GameObject to, int quality)
 		{
-			midpoint.transform.localPosition = new Vector3(0, 0, controller.MidpointDistance(target.transform));
-            
-			lr.Width(.001f, focus != null ? .01f : 0f);
-            
-			lr.BezierLine(controller.position,
+			line.BezierLine(from.position,
 				midpoint.transform.position, 
-				target.transform.position,
+				to.transform.position,
 				quality);
 		}
 		/// <summary>

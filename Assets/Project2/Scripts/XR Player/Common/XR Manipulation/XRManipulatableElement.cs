@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using DG.Tweening;
-using Project2.Scripts.XR_Player.Common.XR_Manipulation;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common.XR_Input;
+using XR_Prototyping.Scripts.Common.XR_Manipulation;
 using XR_Prototyping.Scripts.Common.XR_Manipulation.Snapping;
 using XR_Prototyping.Scripts.Utilities.Extensions;
 using XR_Prototyping.Scripts.Utilities.Generic;
 
-namespace XR_Prototyping.Scripts.Common.XR_Manipulation
+namespace Project2.Scripts.XR_Player.Common.XR_Manipulation
 {
     public class XRManipulatableElement : XRInputAbstraction
     {
@@ -123,7 +122,7 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation
         {
             if (SnappingAllowed && !Manipulated && snapVisual != null)
             {
-                snapVisual.SetSnapVisualState(state: false, from: Vector3.zero, to: Vector3.zero, snapDistance: float.Epsilon);
+                snapVisual.SetSnapVisualState(state: false, @from: Vector3.zero, to: Vector3.zero, snapDistance: float.Epsilon);
             }
             if (!SnappingAllowed || !Manipulated) return;
             // Cache some references
@@ -160,11 +159,11 @@ namespace XR_Prototyping.Scripts.Common.XR_Manipulation
                         snapped = false;
                     }
                     // Set the snap visual state
-                    snapVisual.SetSnapVisualState(state: true, from: transform.position, to: snapLocation, distance);
+                    snapVisual.SetSnapVisualState(state: true, @from: transform.position, to: snapLocation, distance);
                     return;
                 }
                 // Set the snap visual state when there is nothing to snap to
-                snapVisual.SetSnapVisualState(state: false, from: Vector3.zero, to: Vector3.zero, float.Epsilon);
+                snapVisual.SetSnapVisualState(state: false, @from: Vector3.zero, to: Vector3.zero, float.Epsilon);
             }
         }
         private float cacheDuration;
