@@ -6,20 +6,26 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
     public class XRMovementController : XRInputAbstraction
     {
-        [Header("Movement Settings")]
-        [SerializeField, Range(0f, 100f)] private float movementForce = 25f;
-        [SerializeField, Range(float.Epsilon, 1f)] public float attachDuration = .5f, detachDuration = .2f;
-        [SerializeField, Range(0f, 1f)] private float hipOffset = .15f, headOffset = .75f;
+        [Header("Movement Force Settings")]
+        [SerializeField, Range(0f, 100f)] public float magneticForce = 50f;
+        [SerializeField, Range(0f, 100f)] public float manoeuvreForce = 15f;
+        [SerializeField, Range(0f, 1f)] public float reelingModifier = .25f;
+        [Header("Magnet Animation Settings")]
+        [SerializeField, Range(float.Epsilon, 1f)] public float attachDuration = .5f;
+        [SerializeField, Range(float.Epsilon, 1f)] public float detachDuration = .2f;
+        [Header("Cast Origin Position Settings")]
+        [SerializeField, Range(0f, 1f)] public float hipOffset = .15f;
+        [SerializeField, Range(0f, 1f)] public float headOffset = .5f;
+        [Header("Visual Settings")]
+        [SerializeField] public GameObject finderAnchorVisual; 
+        [SerializeField] private Material magnetMaterial, finderMaterial;
         [SerializeField, Range(float.Epsilon, .1f)] private float magnetWidth = .025f, finderWidth = .015f;
-        [Space(10f)]
+        [Header("Cast Location Settings")]
         [SerializeField, Range(0f, 1000f)] public float maximumDistance = 250f;
         [SerializeField, Range(0f, 180f)] public float devianceTolerance = 30f;
         [SerializeField, Range(0f, 1f)] public float finderDamping = .75f, magnetDamping = .5f;
-        [SerializeField] private XRInputController.XRControllerButton attach = XRInputController.XRControllerButton.Grip, move = XRInputController.XRControllerButton.Trigger;
         
-        [Header("Movement References")] 
-        [SerializeField] public GameObject finderAnchorVisual; 
-        [SerializeField] private Material magnetMaterial, finderMaterial;
+        [SerializeField] private XRInputController.XRControllerButton attach = XRInputController.XRControllerButton.Grip, move = XRInputController.XRControllerButton.Trigger;
         
         private GameObject movementParent;
         private XRMovementInformation left, right;
@@ -28,9 +34,9 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
         private void Awake()
         {
-            movementParent = Set.Object(gameObject, "[Movement Parent]", Vector3.zero);
-            left = gameObject.AddComponent<XRMovementInformation>();
-            right = gameObject.AddComponent<XRMovementInformation>();
+            movementParent = Set.Object(null, "[Movement Parent]", Vector3.zero);
+            left = movementParent.AddComponent<XRMovementInformation>();
+            right = movementParent.AddComponent<XRMovementInformation>();
             left.SetupMovementInformation(this, movementParent,  XRInputController.Check.Left, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
             right.SetupMovementInformation(this, movementParent, XRInputController.Check.Right, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
         }
@@ -44,10 +50,15 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
         private void SetTransforms()
         {
-            movementParent.transform.position = XRInputController.NormalisedPosition(XRInputController.Check.Head);
+            Vector3 position = new Vector3(
+                XRInputController.Position(XRInputController.Check.Head).x, 
+                XRInputController.Position(XRInputController.Check.Head).y - headOffset, 
+                XRInputController.Position(XRInputController.Check.Head).z);
+            movementParent.transform.position = position;
             movementParent.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
-            left.SetTransform(-hipOffset, heightOffset: headOffset);
-            right.SetTransform(hipOffset, heightOffset: headOffset);
+            
+            left.SetTransform(-hipOffset);
+            right.SetTransform(hipOffset);
         }
 
         private void FindValidAnchors()
@@ -67,16 +78,23 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
         private void FindValidAnchor(XRMovementInformation movementInformation)
         {
+            Color debug = Color.red;
+            float distance = maximumDistance;
+
             if (Physics.Raycast(movementInformation.CastOriginPosition, movementInformation.CastVector, out RaycastHit hit, maximumDistance) && hit.transform.CompareTag("CanAttach"))
             {
                 movementInformation.ValidCurrentAnchorPoint(hit);    
+                debug = Color.green;
+                distance = hit.distance;    
             }
             else
             {
                 movementInformation.NoValidCurrentAnchorPoint();
             }
             
-            movementInformation.FinderVisual();
+            movementInformation.DrawVisuals();
+            
+            Debug.DrawRay(movementInformation.CastOriginPosition, movementInformation.CastVector * distance, debug);
         }
 
         private void AttachDetach(XRMovementInformation movementInformation)
@@ -93,10 +111,9 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         
         private void MoveToAnchor(XRMovementInformation movementInformation)
         {
-            if (movementInformation.Attached && XRInputController.ControllerButton(move, movementInformation.check))
+            if (XRInputController.ControllerButton(move, movementInformation.check))
             {
-                PlayerRigidbody.AddForce(movementInformation.MoveVector * movementForce, ForceMode.Acceleration);
-                Debug.DrawRay(movementInformation.CastOriginPosition, movementInformation.MoveVector * movementForce, Color.red);
+                movementInformation.MoveToAnchor();
             }
         }
     }

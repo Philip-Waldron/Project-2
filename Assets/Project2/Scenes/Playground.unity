@@ -10886,38 +10886,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[XR Player]'
       objectReference: {fileID: 0}
-    - target: {fileID: 3537935101090532976, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: far clip plane
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: m_CollisionDetection
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: m_Constraints
-      value: 112
-      objectReference: {fileID: 0}
-    - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: m_Drag
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: force
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: devianceTolerance
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: movementForce
-      value: 50
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
 --- !u!1 &748843391
