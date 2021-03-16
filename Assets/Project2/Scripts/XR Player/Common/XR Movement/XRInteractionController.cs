@@ -4,7 +4,7 @@ using XR_Prototyping.Scripts.Utilities.Generic;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
-    public class XRMovementController : XRInputAbstraction
+    public class XRInteractionController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
         public bool UseMagneticForce;
@@ -23,28 +23,32 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [SerializeField, Range(0f, 1f)] public float hipOffset = .15f;
         [SerializeField, Range(0f, 1f)] public float headOffset = .5f;
         [Header("Visual Settings")]
-        [SerializeField] public GameObject finderAnchorVisual;
+        [SerializeField] public GameObject finderAnchorVisual; 
         [SerializeField] private Material magnetMaterial, finderMaterial;
         [SerializeField, Range(float.Epsilon, .1f)] private float magnetWidth = .025f, finderWidth = .015f;
         [Header("Cast Location Settings")]
         [SerializeField, Range(0f, 1000f)] public float maximumDistance = 250f;
         [SerializeField, Range(0f, 180f)] public float devianceTolerance = 30f;
         [SerializeField, Range(0f, 1f)] public float finderDamping = .75f, magnetDamping = .5f;
-
         [SerializeField] private XRInputController.XRControllerButton attach = XRInputController.XRControllerButton.Grip, move = XRInputController.XRControllerButton.Trigger;
-
-        private GameObject movementParent;
-        public XRMovementInformation left, right;
+        [Header("Manipulation Settings")]
+        [SerializeField, Range(1f, 5f)] public float lassoOffset;
+        [SerializeField, Range(1f, 5f)] public float magneticGrabForce = 3f;
+        
+        private GameObject interactionParent;
+        
+        private XRInteractionInformation left, right;
 
         public Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
 
         private void Awake()
         {
-            movementParent = Set.Object(null, "[Movement Parent]", Vector3.zero);
-            left = movementParent.AddComponent<XRMovementInformation>();
-            right = movementParent.AddComponent<XRMovementInformation>();
-            left.SetupMovementInformation(this, movementParent,  XRInputController.Check.Left, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
-            right.SetupMovementInformation(this, movementParent, XRInputController.Check.Right, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
+            interactionParent = Set.Object(null, "[Movement Parent]", Vector3.zero);
+            left = interactionParent.AddComponent<XRInteractionInformation>();
+            right = interactionParent.AddComponent<XRInteractionInformation>();
+
+            left.SetupMovementInformation(this, interactionParent,  XRInputController.Check.Left, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
+            right.SetupMovementInformation(this, interactionParent, XRInputController.Check.Right, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
         }
 
         private void Update()
@@ -57,12 +61,12 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private void SetTransforms()
         {
             Vector3 position = new Vector3(
-                XRInputController.Position(XRInputController.Check.Head).x,
-                XRInputController.Position(XRInputController.Check.Head).y - headOffset,
+                XRInputController.Position(XRInputController.Check.Head).x, 
+                XRInputController.Position(XRInputController.Check.Head).y - headOffset, 
                 XRInputController.Position(XRInputController.Check.Head).z);
-            movementParent.transform.position = position;
-            movementParent.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
-
+            interactionParent.transform.position = position;
+            interactionParent.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
+            
             left.SetTransform(-hipOffset);
             right.SetTransform(hipOffset);
         }
@@ -77,45 +81,54 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         {
             AttachDetach(left);
             AttachDetach(right);
-
+            
             MoveToAnchor(left);
             MoveToAnchor(right);
         }
 
-        private void FindValidAnchor(XRMovementInformation movementInformation)
+        private void FindValidAnchor(XRInteractionInformation interactionInformation)
         {
             Color debug = Color.red;
             float distance = maximumDistance;
 
-            if (Physics.Raycast(movementInformation.CastOriginPosition, movementInformation.CastVector, out RaycastHit hit, maximumDistance) && hit.transform.CompareTag("CanAttach"))
+            if (Physics.Raycast(interactionInformation.CastOriginPosition, interactionInformation.CastVector, out RaycastHit hit, maximumDistance))
             {
-                movementInformation.ValidCurrentAnchorPoint(hit);
-                debug = Color.green;
-                distance = hit.distance;
+                if (hit.transform.CompareTag("CanAttach"))
+                {
+                    interactionInformation.ValidCurrentAnchorPoint(hit, true, false);
+                    debug = Color.green;
+                    distance = hit.distance;   
+                }
+                else if (hit.transform.CompareTag("CanGrab"))
+                {
+                    interactionInformation.ValidCurrentAnchorPoint(hit, false, true);
+                    debug = Color.yellow;
+                    distance = hit.distance;
+                }
             }
             else
             {
-                movementInformation.NoValidCurrentAnchorPoint();
+                interactionInformation.NoValidCurrentAnchorPoint(); 
             }
-
-            movementInformation.DrawVisuals();
-
-            Debug.DrawRay(movementInformation.CastOriginPosition, movementInformation.CastVector * distance, debug);
+            
+            interactionInformation.DrawVisuals();
+            
+            Debug.DrawRay(interactionInformation.CastOriginPosition, interactionInformation.CastVector * distance, debug);
         }
 
-        private void AttachDetach(XRMovementInformation movementInformation)
+        private void AttachDetach(XRInteractionInformation interactionInformation)
         {
-            if (!movementInformation.Attached && XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Down))
+            if (XRInputController.InputEvent(attach).State(interactionInformation.check, XRInputController.InputEvents.InputEvent.Transition.Down))
             {
-                movementInformation.TriggerAttach();
+                interactionInformation.TriggerAttach();
             }
-            if (XRInputController.InputEvent(attach).State(movementInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
+            else if (XRInputController.InputEvent(attach).State(interactionInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
             {
-                movementInformation.TriggerDetach();
+                interactionInformation.TriggerDetach(); 
             }
         }
-
-        private void MoveToAnchor(XRMovementInformation movementInformation)
+        
+        private void MoveToAnchor(XRInteractionInformation movementInformation)
         {
             if (XRInputController.ControllerButton(move, movementInformation.check))
             {

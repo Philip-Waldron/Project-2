@@ -230,7 +230,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &1002373623
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -321,7 +321,7 @@ GameObject:
   - component: {fileID: 1148381169}
   - component: {fileID: 1148381173}
   m_Layer: 0
-  m_Name: Cube (2)
+  m_Name: '[Grabbable Object]'
   m_TagString: CanGrab
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -433,7 +433,7 @@ GameObject:
   - component: {fileID: 1491625346}
   - component: {fileID: 1491625350}
   m_Layer: 0
-  m_Name: Cube (3)
+  m_Name: '[Grabbable Object]'
   m_TagString: CanGrab
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -545,7 +545,7 @@ GameObject:
   - component: {fileID: 1658263875}
   - component: {fileID: 1658263879}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: '[Grabbable Object]'
   m_TagString: CanGrab
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -643,23 +643,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!1 &1701523615 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3537935100338196466, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-  m_PrefabInstance: {fileID: 63686482}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1701523616
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1701523615}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 054c25f5f243474cad933f89fd5b03fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1731002562
 GameObject:
   m_ObjectHideFlags: 0
@@ -678,7 +661,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &1731002563
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -868,7 +851,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &1869631475
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -959,7 +942,7 @@ GameObject:
   - component: {fileID: 1984689287}
   - component: {fileID: 1984689291}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: '[Grabbable Object]'
   m_TagString: CanGrab
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1075,7 +1058,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &2111878897
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1170,7 +1153,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &2139083960
 SphereCollider:
   m_ObjectHideFlags: 0
