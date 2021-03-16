@@ -10910,6 +10910,14 @@ PrefabInstance:
       propertyPath: force
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: devianceTolerance
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: movementForce
+      value: 50
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
 --- !u!1 &748843391

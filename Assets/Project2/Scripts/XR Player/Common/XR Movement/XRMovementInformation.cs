@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using XR_Prototyping.Scripts.Utilities;
@@ -9,97 +10,139 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
     public class XRMovementInformation : XRInputAbstraction
         {
             public XRInputController.Check check;
-            public LineRenderer connection;
-            private Rigidbody playerRigidbody;
-            private RaycastHit validPoint, lastValid, attachedPoint;
-            private Transform origin, hit, midpoint;
-            private bool valid;
-
-            private float validWidth;
-            private float InvalidWidth => validWidth * .25f;
-
+            public LineRenderer magnetVisual, anchorFinder;
+            private RaycastHit validAnchorPoint, attachedPoint;
+            private Transform castOrigin, magnetAnchor, magnetMidpoint, finderAnchor, finderMidpoint, anchorVisual;
             private ConfigurableJoint joint;
-            // private ConfigurableJoint ConfigurableJoint => origin.GetComponent<ConfigurableJoint>();
+            private XRMovementController movementController;
+            private bool validAnchorLocation, immediateDetach;
+            
             private Vector3 ControllerPosition => XRInputController.Position(check);
-            public Vector3 Origin => origin.position;
-            public Vector3 CastVector => origin.forward;
-            public Vector3 MoveVector => (attachedPoint.point - Origin).normalized;
-            private float Distance => Vector3.Distance(Origin, hit.position);
+            public Vector3 CastOriginPosition => castOrigin.position;
+            public Vector3 CastVector => castOrigin.forward;
+            public Vector3 MoveVector => (attachedPoint.point - CastOriginPosition).normalized;
+            public Vector3 FinderDefaultPosition => new Vector3(0f, 0f, movementController.maximumDistance);
+            private float Distance => Vector3.Distance(CastOriginPosition, magnetAnchor.position);
 
             public bool Attached { get; set; }
 
-            public void SetupMovementInformation(GameObject parent, XRInputController.Check set, Material material, float width, Rigidbody player)
+            public void SetupMovementInformation(XRMovementController controller, GameObject parent, XRInputController.Check set, Material magnetMaterial, float magnetWidth, Material finderMaterial, float finderWidth)
             {
+                movementController = controller;
+                    
                 check = set;
-                origin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
-                hit = Set.Object(origin.gameObject, $"[Movement Hit] {set.ToString()}", position: new Vector3(0f, 0f, 3f)).transform;
-                midpoint = Set.Object(null, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
-                validWidth = width;
-                connection = origin.gameObject.Line(material, InvalidWidth);
-                playerRigidbody = player;
-                joint = player.gameObject.AddComponent<ConfigurableJoint>();
+                castOrigin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
+                
+                magnetAnchor = Set.Object(castOrigin.gameObject, $"[Magnet Anchor] {set.ToString()}", position: Vector3.zero).transform;
+                magnetMidpoint = Set.Object(null, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
+                
+                finderAnchor = Set.Object(castOrigin.gameObject, $"[Finder Anchor] {set.ToString()}", position: Vector3.zero).transform;
+                finderMidpoint = Set.Object(castOrigin.gameObject, $"[Finder Midpoint] {set.ToString()}", position: Vector3.zero).transform;
+
+                magnetVisual = magnetAnchor.gameObject.Line(magnetMaterial, magnetWidth, startEnabled: false);
+                anchorFinder = finderAnchor.gameObject.Line(finderMaterial, finderWidth);
+
+                anchorVisual = Instantiate(movementController.finderAnchorVisual).transform;
+                anchorVisual.parent = finderAnchor;
+                anchorVisual.ResetLocalTransform();
+                
+                joint = movementController.gameObject.AddComponent<ConfigurableJoint>();
             }
 
             private void Update()
             {
-                return;
-                
-                if (!Attached) return;
-                
-                joint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
-                joint.linearLimit = new SoftJointLimit()
-                {
-                    limit = Distance,
-                    bounciness = 0.3f
-                };
+                magnetVisual.BezierLine(castOrigin.position, magnetMidpoint.position, magnetAnchor.position);
             }
 
             public void SetTransform(float hipOffset, float heightOffset)
             {
-                origin.LookAt(ControllerPosition);
-                origin.localPosition = new Vector3(hipOffset, 0f, -.01f);
-                Vector3 position = origin.position;
+                // Set the location of the hip positions, used for casting and locating anchor points
+                castOrigin.LookAt(ControllerPosition);
+                castOrigin.localPosition = new Vector3(hipOffset, 0f, -.01f);
+                Vector3 position = castOrigin.position;
                 position = new Vector3(position.x, XRInputController.Position(XRInputController.Check.Head).y - heightOffset, position.z);
-                origin.position = position;
-                midpoint.LerpMidpoint(origin, hit, 1f);
+                castOrigin.position = position;
+                // Calculate midpoints
+                finderMidpoint.localPosition = new Vector3(0f, 0f, Mathf.Lerp(0f, finderAnchor.localPosition.z, .5f));
+                magnetMidpoint.LerpMidpoint(castOrigin, magnetAnchor, movementController.magnetDamping);
+            }
+            /// <summary>
+            /// Called when the user is casting directly at a valid point
+            /// </summary>
+            /// <param name="raycastHit"></param>
+            public void ValidCurrentAnchorPoint(RaycastHit raycastHit)
+            {
+                // Cache every valid anchor point
+                validAnchorPoint = raycastHit;
+                finderAnchor.position = Vector3.Lerp(finderAnchor.position, validAnchorPoint.point, movementController.finderDamping);
+                anchorVisual.forward = validAnchorPoint.normal;
+                anchorVisual.ScaleFactor(validAnchorPoint.distance);
+                validAnchorLocation = true;
+            }
+            /// <summary>
+            /// Called when the user is not pointing directly at a valid point
+            /// </summary>
+            public void NoValidCurrentAnchorPoint()
+            {
+                // If the last valid anchor point is within a deviance from the origin, count it as valid
+                if (Vector3.Angle(CastVector, (validAnchorPoint.point - CastOriginPosition)) <= movementController.devianceTolerance)
+                {
+                    ValidCurrentAnchorPoint(validAnchorPoint);
+                }
+                else
+                {
+                    finderAnchor.localPosition = Vector3.Lerp(finderAnchor.localPosition, FinderDefaultPosition, movementController.finderDamping);
+                    anchorVisual.ScaleFactor(0f);
+                    validAnchorLocation = false;
+                }
+            }
+            
+            /// <summary>
+            /// Draw the finder curve
+            /// </summary>
+            public void FinderVisual()
+            {
+                anchorFinder.BezierLine(castOrigin.position, finderMidpoint.position, finderAnchor.position);
             }
 
-            public void SetAttachPoint(RaycastHit raycastHit)
+            public void TriggerAttach()
             {
-                validPoint = raycastHit;
-                lastValid = validPoint;
-                if (Attached) return;
-                valid = true;
-                hit.position = Vector3.Lerp(hit.position, raycastHit.point, 1f);
-                connection.Width(validWidth);
+                if (Attached)
+                {
+                    Debug.Log($"{check}, tried to attach, but is already attached");
+                    return;
+                }
+                if (!validAnchorLocation)
+                {
+                    Debug.Log($"{check}, tried to attach, but there was no valid anchor location!");
+                }
+                else
+                {
+                    Debug.Log($"{check}, trying to attach to {validAnchorPoint.point}");
+                    attachedPoint = validAnchorPoint;
+                    magnetVisual.enabled = true;
+                    magnetAnchor.DOMove(attachedPoint.point, movementController.attachDuration).OnComplete(AttachAnchor);
+                }
             }
 
-            public void ClearAttachPoint()
+            private void AttachAnchor()
             {
-                if (Attached) return;
-                valid = false;
-                
-                hit.localPosition = new Vector3(0f, 0f, 3f);
-                connection.Width(InvalidWidth);
-            }
-
-            public void AttachVisual()
-            {
-                connection.BezierLine(origin.position, midpoint.position, hit.position);
-            }
-
-            public void Attach()
-            {
-                // if (!valid) return;
-                
                 Attached = true;
-                attachedPoint = lastValid;
-                hit.position = attachedPoint.point;
-                hit.SetParent(attachedPoint.transform);
+                magnetAnchor.position = attachedPoint.point;
+                magnetAnchor.SetParent(attachedPoint.transform);
+                AttachJoint();
                 
+                if (!immediateDetach) return;
+                Debug.Log($"{check}, immediately detached");
+                immediateDetach = false;
+                DetachAnchor();
+            }
+            
+            private void AttachJoint()
+            {
                 joint.connectedBody = attachedPoint.rigidbody;
                 joint.autoConfigureConnectedAnchor = false;
-                joint.connectedAnchor = attachedPoint.transform.InverseTransformPoint(hit.position);
+                joint.connectedAnchor = attachedPoint.transform.InverseTransformPoint(magnetAnchor.position);
                 
                 joint.linearLimit = new SoftJointLimit()
                 {
@@ -112,11 +155,30 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 joint.zMotion = ConfigurableJointMotion.Limited;
             }
 
-            public void Detach()
+            public void TriggerDetach()
             {
+                if (!Attached)
+                {
+                    immediateDetach = true;
+                    Debug.Log($"{check}, tried to detach anchor, but it is not attached to anything");
+                }
+                else
+                {
+                    Debug.Log($"{check}, detaching anchor");
+                    magnetAnchor.DOMove(CastOriginPosition, movementController.detachDuration).OnComplete(DetachAnchor);
+                }
+            }
+
+            private void DetachAnchor()
+            {
+                magnetVisual.enabled = false;
                 Attached = false;
-                hit.SetParent(origin);
-                
+                DetachJoint();
+                magnetAnchor.SetParent(castOrigin);
+            }
+
+            private void DetachJoint()
+            {
                 joint.xMotion = ConfigurableJointMotion.Free;
                 joint.yMotion = ConfigurableJointMotion.Free;
                 joint.zMotion = ConfigurableJointMotion.Free;

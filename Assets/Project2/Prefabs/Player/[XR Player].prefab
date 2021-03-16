@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3537935100338196464}
   - component: {fileID: 6422027825527539729}
   - component: {fileID: 9187127777268213059}
+  - component: {fileID: 3758113860359935872}
   - component: {fileID: 6395249360161783834}
   - component: {fileID: 3336247620417826493}
   m_Layer: 0
@@ -153,13 +154,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a112ca9ec267b4baf3a5ac911e5c56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  force: 0
+  movementForce: 75
+  attachDuration: 0.5
+  detachDuration: 0.2
   hipOffset: 0.125
-  headOffset: 0.75
-  connectionWidth: 0.0075
+  headOffset: 0.45
+  magnetWidth: 0.01
+  finderWidth: 0.0075
+  maximumDistance: 250
+  devianceTolerance: 30
   attach: 0
   move: 1
-  connectionMaterial: {fileID: 2100000, guid: 27f831b2753b430439503b19b509e829, type: 2}
+  finderAnchorVisual: {fileID: 4209803132150304382, guid: 738711139fc88ca46a486c471f11a8c0, type: 3}
+  magnetMaterial: {fileID: 2100000, guid: 65d014789f15744478aee85204d5c4b6, type: 2}
+  finderMaterial: {fileID: 2100000, guid: 71a4e41522a48e342afddff8f4dbbaa5, type: 2}
+--- !u!114 &3758113860359935872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3537935100338196466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 216533e98e074a769a88d26f0b45a4e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  head: {fileID: 3537935101090532983}
+  playerCollider: {fileID: 3336247620417826493}
 --- !u!54 &6395249360161783834
 Rigidbody:
   m_ObjectHideFlags: 0
