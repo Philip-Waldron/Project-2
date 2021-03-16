@@ -156,6 +156,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   magneticForce: 35
   manoeuvreForce: 25
+  castForce: 15
+  reelingModifier: 0.25
   attachDuration: 0.5
   detachDuration: 0.35
   hipOffset: 0.125
@@ -171,6 +173,11 @@ MonoBehaviour:
   magnetDamping: 0.5
   attach: 0
   move: 1
+  lassoOffset: 1.5
+  leftMove: {fileID: 0}
+  rightMove: {fileID: 0}
+  leftGrab: {fileID: 0}
+  rightGrab: {fileID: 0}
 --- !u!114 &3758113860359935872
 MonoBehaviour:
   m_ObjectHideFlags: 0
