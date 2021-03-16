@@ -16,14 +16,21 @@ namespace Project2.Scripts.Game_Logic
         [Header("Settings")]
         [SerializeField] private float startTime;
         [SerializeField] private float startHealth;
+        [SerializeField, Range(0f, 1f)] private float timeThreshold, healthThreshold, distanceThreshold;
         [Header("Game Events")] 
         public UnityEvent onWin;
         public UnityEvent onLose;
+        public UnityEvent onHealthBelowThreshold;
+        public UnityEvent onTimeBelowThreshold;
+        public UnityEvent onDistanceBelowThreshold;
+        public UnityEvent onEjection;
 
+        private bool time, health, distance;
         private bool countdown, finished, coupled = true;
         private float currentTime, currentHealth;
         private static readonly int Health = Shader.PropertyToID("_Health");
 
+        private float DistanceValue => 1f;
         private float TimeValue => currentTime / startTime;
         private float HealthValue => currentHealth / startHealth;
 
@@ -51,7 +58,8 @@ namespace Project2.Scripts.Game_Logic
             if (coupled && XRInputController.InputEvent(XRInputController.XRControllerButton.Primary).State(XRInputController.InputEvents.InputEvent.Transition.Down, out XRInputController.Check check))
             {
                 coupled = false;
-                bomb.Eject(XRInputController.Velocity(check) * 5f, this);
+                bomb.Eject(XRInputController.Forward(check) * 5f, this);
+                onEjection.Invoke();
             }
             
             if (finished) return;
@@ -59,6 +67,19 @@ namespace Project2.Scripts.Game_Logic
             if (!countdown || currentHealth <= 0f)
             {
                 FailedObjective();
+            }
+
+            if (!time && TimeValue <= timeThreshold)
+            {
+                TimeThreshold();
+            }
+            if (!health && HealthValue <= healthThreshold)
+            {
+                HealthThreshold();
+            }
+            if (!distance && DistanceValue <= distanceThreshold)
+            {
+                DistanceThreshold();
             }
             
             if (countdown)
@@ -104,8 +125,27 @@ namespace Project2.Scripts.Game_Logic
             DisplayHealth();
         }
 
+        private void TimeThreshold()
+        {
+            time = true;
+            onTimeBelowThreshold.Invoke();
+        }
+
+        private void HealthThreshold()
+        {
+            health = true;
+            onHealthBelowThreshold.Invoke();
+        }
+
+        private void DistanceThreshold()
+        {
+            distance = true;
+            onDistanceBelowThreshold.Invoke();
+        }
+
         private void MetObjective()
         {
+            if (finished) return;
             finished = true;
             bombText.SetText("Nice!");
             onWin.Invoke();
@@ -113,6 +153,7 @@ namespace Project2.Scripts.Game_Logic
         
         private void FailedObjective()
         {
+            if (finished) return;
             finished = true;
             bombText.color = Color.red;
             bombText.SetText("Oof!");

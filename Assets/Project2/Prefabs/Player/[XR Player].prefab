@@ -53,14 +53,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bomb: {fileID: 0}
   objective: {fileID: 0}
-  timeText: {fileID: 0}
-  healthText: {fileID: 0}
+  bombText: {fileID: 0}
+  healthVisual: {fileID: 0}
   startTime: 120
-  startHealth: 100
+  startHealth: 300
+  timeThreshold: 0
+  healthThreshold: 0
+  distanceThreshold: 0
   onWin:
     m_PersistentCalls:
       m_Calls: []
   onLose:
+    m_PersistentCalls:
+      m_Calls: []
+  onHealthBelowThreshold:
+    m_PersistentCalls:
+      m_Calls: []
+  onTimeBelowThreshold:
+    m_PersistentCalls:
+      m_Calls: []
+  onDistanceBelowThreshold:
+    m_PersistentCalls:
+      m_Calls: []
+  onEjection:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &6422027825527539729
@@ -192,6 +207,7 @@ MonoBehaviour:
   detachDuration: 0.35
   hipOffset: 0.125
   headOffset: 0.45
+  castOrigin: {fileID: 0}
   finderAnchorVisual: {fileID: 4209803132150304382, guid: 738711139fc88ca46a486c471f11a8c0, type: 3}
   magnetMaterial: {fileID: 2100000, guid: 65d014789f15744478aee85204d5c4b6, type: 2}
   finderMaterial: {fileID: 2100000, guid: 71a4e41522a48e342afddff8f4dbbaa5, type: 2}
