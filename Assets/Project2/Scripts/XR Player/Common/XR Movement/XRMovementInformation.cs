@@ -11,11 +11,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public XRInputController.Check check;
             public LineRenderer connection;
             private Rigidbody playerRigidbody;
-            private RaycastHit validPoint, attachedPoint;
+            private RaycastHit validPoint, lastValid, attachedPoint;
             private Transform origin, hit, midpoint;
             private bool valid;
 
-            private ConfigurableJoint ConfigurableJoint;
+            private float validWidth;
+            private float InvalidWidth => validWidth * .25f;
+
+            private ConfigurableJoint joint;
             // private ConfigurableJoint ConfigurableJoint => origin.GetComponent<ConfigurableJoint>();
             private Vector3 ControllerPosition => XRInputController.Position(check);
             public Vector3 Origin => origin.position;
@@ -29,11 +32,12 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             {
                 check = set;
                 origin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
-                hit = Set.Object(null, $"[Movement Hit] {set.ToString()}", position: Vector3.zero).transform;
+                hit = Set.Object(origin.gameObject, $"[Movement Hit] {set.ToString()}", position: new Vector3(0f, 0f, 3f)).transform;
                 midpoint = Set.Object(null, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
-                connection = origin.gameObject.Line(material, width);
+                validWidth = width;
+                connection = origin.gameObject.Line(material, InvalidWidth);
                 playerRigidbody = player;
-                ConfigurableJoint = player.gameObject.AddComponent<ConfigurableJoint>();
+                joint = player.gameObject.AddComponent<ConfigurableJoint>();
             }
 
             private void Update()
@@ -42,8 +46,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 
                 if (!Attached) return;
                 
-                ConfigurableJoint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
-                ConfigurableJoint.linearLimit = new SoftJointLimit()
+                joint.anchor = attachedPoint.transform.InverseTransformPoint(hit.position);
+                joint.linearLimit = new SoftJointLimit()
                 {
                     limit = Distance,
                     bounciness = 0.3f
@@ -57,22 +61,26 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 Vector3 position = origin.position;
                 position = new Vector3(position.x, XRInputController.Position(XRInputController.Check.Head).y - heightOffset, position.z);
                 origin.position = position;
-                midpoint.LerpMidpoint(origin, hit, .3f);
+                midpoint.LerpMidpoint(origin, hit, 1f);
             }
 
             public void SetAttachPoint(RaycastHit raycastHit)
             {
                 validPoint = raycastHit;
+                lastValid = validPoint;
                 if (Attached) return;
                 valid = true;
-                hit.position = Vector3.Lerp(hit.position, raycastHit.point, .5f);
+                hit.position = Vector3.Lerp(hit.position, raycastHit.point, 1f);
+                connection.Width(validWidth);
             }
 
             public void ClearAttachPoint()
             {
                 if (Attached) return;
                 valid = false;
-                hit.position = ControllerPosition;
+                
+                hit.localPosition = new Vector3(0f, 0f, 3f);
+                connection.Width(InvalidWidth);
             }
 
             public void AttachVisual()
@@ -82,35 +90,36 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             public void Attach()
             {
-                if (!valid) return;
+                // if (!valid) return;
                 
                 Attached = true;
-                attachedPoint = validPoint;
+                attachedPoint = lastValid;
                 hit.position = attachedPoint.point;
                 hit.SetParent(attachedPoint.transform);
                 
-                ConfigurableJoint.connectedBody = attachedPoint.rigidbody;
-                ConfigurableJoint.connectedAnchor = attachedPoint.transform.InverseTransformPoint(hit.position);
+                joint.connectedBody = attachedPoint.rigidbody;
+                joint.autoConfigureConnectedAnchor = false;
+                joint.connectedAnchor = attachedPoint.transform.InverseTransformPoint(hit.position);
                 
-                ConfigurableJoint.linearLimit = new SoftJointLimit()
+                joint.linearLimit = new SoftJointLimit()
                 {
                     limit = Distance,
                     bounciness = 0.3f
                 };
                 
-                ConfigurableJoint.xMotion = ConfigurableJointMotion.Limited;
-                ConfigurableJoint.yMotion = ConfigurableJointMotion.Limited;
-                ConfigurableJoint.zMotion = ConfigurableJointMotion.Limited;
+                joint.xMotion = ConfigurableJointMotion.Limited;
+                joint.yMotion = ConfigurableJointMotion.Limited;
+                joint.zMotion = ConfigurableJointMotion.Limited;
             }
 
             public void Detach()
             {
                 Attached = false;
-                hit.SetParent(null);
+                hit.SetParent(origin);
                 
-                ConfigurableJoint.xMotion = ConfigurableJointMotion.Free;
-                ConfigurableJoint.yMotion = ConfigurableJointMotion.Free;
-                ConfigurableJoint.zMotion = ConfigurableJointMotion.Free;
+                joint.xMotion = ConfigurableJointMotion.Free;
+                joint.yMotion = ConfigurableJointMotion.Free;
+                joint.zMotion = ConfigurableJointMotion.Free;
                 //Destroy(ConfigurableJoint);
             }
         }
