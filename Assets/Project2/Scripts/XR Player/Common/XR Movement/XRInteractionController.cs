@@ -36,7 +36,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [SerializeField, Range(1f, 5f)] public float magneticGrabForce = 3f;
         
         private GameObject interactionParent;
-        
+        private bool useGravity;
         private XRInteractionInformation left, right;
 
         public Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
@@ -49,6 +49,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             left.SetupMovementInformation(this, interactionParent,  XRInputController.Check.Left, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
             right.SetupMovementInformation(this, interactionParent, XRInputController.Check.Right, magnetMaterial, magnetWidth, finderMaterial, finderWidth);
+
+            useGravity = PlayerRigidbody.useGravity;
         }
 
         private void Update()
@@ -143,7 +145,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             {
                 if (DisableGravityOnForceApplied)
                 {
-                    PlayerRigidbody.useGravity = true;
+                    PlayerRigidbody.useGravity = useGravity;
                 }
             }
         }

@@ -242,7 +242,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        public InputDevice InputDevice(Check check)
+        private InputDevice InputDevice(Check check)
         {
             switch (check)
             {

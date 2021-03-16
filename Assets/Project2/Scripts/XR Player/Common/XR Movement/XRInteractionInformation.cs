@@ -254,6 +254,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public void MoveToAnchor()
             {
                 if (!Attached) return;
+                
+                Debug.Log("Adding force!!");
 
                 if (interactionController.UseMagneticForce)
                 {
