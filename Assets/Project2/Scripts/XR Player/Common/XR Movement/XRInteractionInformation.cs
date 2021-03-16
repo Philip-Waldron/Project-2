@@ -17,7 +17,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private ConfigurableJoint joint;
             private XRInteractionController interactionController;
             private bool validAnchorLocation, attaching, immediateDetach, validGrabObject;
-            private float dynamicDistance;
             
             private bool grabbed, gravity;
             private Transform grabbedObject;
@@ -34,15 +33,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             
             private Vector3 LassoPosition => new Vector3(0f, 0f, interactionController.lassoOffset);
 
-            private const float Bounciness = .1f;
-
-            private InteractionState interactionState;
-            private enum InteractionState
-            {
-                Move, Grab, Nothing
-            }
-            
-            public bool Attached { get; private set; }
+            public bool Attached { get; set; }
 
             private void LateUpdate()
             {
@@ -50,32 +41,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
                 if (grabbed)
                 {
-                    grabbedRigidbody.AddForce((magneticLasso.position - grabbedObject.position) * interactionController.magneticGrabForce);
-                    //grabbedObject.position = Vector3.Lerp(grabbedObject.position, magneticLasso.position, .2f);
+                    grabbedRigidbody.AddForce((magneticLasso.position - grabbedObject.position) * interactionController.magneticGrabForce); 
                 }
-                
-                /*
-                if (Attached)
-                {
-                    dynamicDistance = LimitDistance;
-                    joint.linearLimit = new SoftJointLimit()
-                    {
-                        limit = dynamicDistance,
-                        bounciness = Bounciness
-                    };
-                    
-                    return;
-                    if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Forward) || XRInputController.AxisDirection(check, XRInputController.Cardinal.Back))
-                    {
-                        dynamicDistance -= XRInputController.AxisValue(check).y * interactionController.reelingModifier;
-                    }
-
-                    joint.linearLimit = new SoftJointLimit()
-                    {
-                        limit = dynamicDistance,
-                        bounciness = Bounciness
-                    };
-                }*/
             }
 
             public void SetupMovementInformation(XRInteractionController controller, GameObject parent, XRInputController.Check set, Material magnetMaterial, float magnetWidth, Material finderMaterial, float finderWidth)
@@ -102,23 +69,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 ConfigureJoint();
             }
 
-            private void ConfigureJoint()
-            {
-                joint = interactionController.gameObject.AddComponent<ConfigurableJoint>();
-                joint.autoConfigureConnectedAnchor = false;
-                joint.enablePreprocessing = true;
-                joint.enableCollision = false;
-                joint.linearLimitSpring = new SoftJointLimitSpring()
-                {
-                    spring = 1500f,
-                    damper = 250f
-                };
-                return;
-                // Todo, make this not be dumb
-                joint.angularXMotion = ConfigurableJointMotion.Free;
-                joint.angularYMotion = ConfigurableJointMotion.Free;
-                joint.angularZMotion = ConfigurableJointMotion.Free;
-            }
+            private void ConfigureJoint() { }
 
             public void SetTransform(float offset)
             {
@@ -256,22 +207,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 grabbedRigidbody.useGravity = gravity;
             }
 
-            private void AttachJoint()
-            {
-                return;
-                joint.anchor = XRInputController.Transform().InverseTransformPoint(CastOriginPosition);
-                joint.connectedAnchor = XRInputController.Transform().InverseTransformPoint(attachedPoint.point);
-                
-                joint.linearLimit = new SoftJointLimit()
-                {
-                    limit = LimitDistance,
-                    bounciness = Bounciness
-                };
-
-                dynamicDistance = LimitDistance;
-                
-                SetJointFreedom(ConfigurableJointMotion.Limited);
-            }
+            private void AttachJoint() { }
 
             public void TriggerDetach()
             {
@@ -313,37 +249,37 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 SetJointFreedom(ConfigurableJointMotion.Free);
             }
 
-            private void SetJointFreedom(ConfigurableJointMotion state)
-            {
-                return;
-                joint.xMotion = state;
-                joint.yMotion = state;
-                joint.zMotion = state;
-            }
+            private void SetJointFreedom(ConfigurableJointMotion state) { }
 
             public void MoveToAnchor()
             {
                 if (!Attached) return;
-                
-                /*
-                dynamicDistance -= .75f;
-                
-                joint.linearLimit = new SoftJointLimit()
-                {
-                    limit = dynamicDistance,
-                    bounciness = Bounciness
-                };
 
-                return;
-                */
-                
-                interactionController.PlayerRigidbody.AddForce(MagneticVector * interactionController.magneticForce, ForceMode.Acceleration);
-                interactionController.PlayerRigidbody.AddForce(ManoeuvreVector * interactionController.manoeuvreForce, ForceMode.Acceleration);
-                interactionController.PlayerRigidbody.AddForce(CastVector * interactionController.castForce, ForceMode.Acceleration);
-                
-                Debug.DrawRay(CastOriginPosition, MagneticVector * interactionController.magneticForce, Color.blue);
-                Debug.DrawRay(CastOriginPosition, ManoeuvreVector * interactionController.manoeuvreForce, Color.cyan);
-                Debug.DrawRay(CastOriginPosition, CastVector * interactionController.castForce, Color.green);
+                if (interactionController.UseMagneticForce)
+                {
+                    interactionController.PlayerRigidbody.AddForce(MagneticVector * interactionController.MagneticForce, ForceMode.Acceleration);
+                }
+
+                if (interactionController.UseCastForce)
+                {
+                    interactionController.PlayerRigidbody.AddForce(CastVector * interactionController.CastForce, ForceMode.Acceleration);
+                }
+
+                if (interactionController.UseManoeuvreForce)
+                {
+                    interactionController.PlayerRigidbody.AddForce(ManoeuvreVector * interactionController.ManoeuvreForce, ForceMode.Acceleration);
+                }
+
+                if (interactionController.UseAverageForce)
+                {
+                    Vector3 averageVector = ((MagneticVector + CastVector) * 0.5f).normalized;
+                    interactionController.PlayerRigidbody.AddForce(averageVector * interactionController.AverageForce, ForceMode.Acceleration);
+                    Debug.DrawRay(CastOriginPosition, averageVector * interactionController.AverageForce, Color.yellow);
+                }
+
+                Debug.DrawRay(CastOriginPosition, MagneticVector * interactionController.MagneticForce, Color.blue);
+                Debug.DrawRay(CastOriginPosition, CastVector * interactionController.CastForce, Color.green);
+                Debug.DrawRay(CastOriginPosition, ManoeuvreVector * interactionController.ManoeuvreForce, Color.cyan);
             }
         }
 }

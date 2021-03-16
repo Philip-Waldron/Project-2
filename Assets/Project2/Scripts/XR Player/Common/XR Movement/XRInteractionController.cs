@@ -7,10 +7,15 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
     public class XRInteractionController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
-        [SerializeField, Range(0f, 100f)] public float magneticForce = 50f;
-        [SerializeField, Range(0f, 100f)] public float manoeuvreForce = 15f;
-        [SerializeField, Range(0f, 100f)] public float castForce = 15f;
-        [SerializeField, Range(0f, 1f)] public float reelingModifier = .25f;
+        public bool UseMagneticForce;
+        [SerializeField, Range(0f, 100f)] public float MagneticForce = 50f;
+        public bool UseCastForce;
+        [SerializeField, Range(0f, 100f)] public float CastForce = 15f;
+        public bool UseManoeuvreForce;
+        [SerializeField, Range(0f, 100f)] public float ManoeuvreForce = 15f;
+        public bool UseAverageForce;
+        [SerializeField, Range(0f, 100f)] public float AverageForce = 15f;
+        public bool DisableGravityOnForceApplied;
         [Header("Magnet Animation Settings")]
         [SerializeField, Range(float.Epsilon, 1f)] public float attachDuration = .5f;
         [SerializeField, Range(float.Epsilon, 1f)] public float detachDuration = .2f;
@@ -123,11 +128,23 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             }
         }
         
-        private void MoveToAnchor(XRInteractionInformation interactionInformation)
+        private void MoveToAnchor(XRInteractionInformation movementInformation)
         {
-            if (XRInputController.ControllerButton(move, interactionInformation.check))
+            if (XRInputController.ControllerButton(move, movementInformation.check))
             {
-                interactionInformation.MoveToAnchor();
+                movementInformation.MoveToAnchor();
+
+                if (DisableGravityOnForceApplied)
+                {
+                    PlayerRigidbody.useGravity = !movementInformation.Attached;
+                }
+            }
+            else
+            {
+                if (DisableGravityOnForceApplied)
+                {
+                    PlayerRigidbody.useGravity = true;
+                }
             }
         }
     }
