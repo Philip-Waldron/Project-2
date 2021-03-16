@@ -248,12 +248,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             private void ReleaseObject()
             {
-                Debug.LogWarning($"Releasing {grabbedObject.name}!");
+                Debug.Log($"Releasing {grabbedObject.name}!");
                 
                 magnetAnchor.DOMove(CastOriginPosition, interactionController.detachDuration).OnComplete(DetachAnchor);
                 grabbed = false;
-                grabbedRigidbody.velocity *= 3f;
-                //grabbedRigidbody.AddForce(CastVector * 15f, ForceMode.Impulse);
+                grabbedRigidbody.velocity *= 2f;
                 grabbedRigidbody.useGravity = gravity;
             }
 
