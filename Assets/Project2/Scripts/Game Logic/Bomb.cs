@@ -20,7 +20,7 @@ namespace Project2.Scripts.Game_Logic
             gameController = controller;
             transform.SetParent(null);
             Collider.enabled = true;
-            Rigidbody.velocity = velocity;
+            Rigidbody.AddForce(velocity, ForceMode.VelocityChange);
         }
 
         public void Couple(Vector3 velocity)

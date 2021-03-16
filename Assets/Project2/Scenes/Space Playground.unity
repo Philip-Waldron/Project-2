@@ -489,8 +489,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2932305338134277026}
     - target: {fileID: 4097014754086851076, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
-      propertyPath: startHealth
-      value: 300
+      propertyPath: timeThreshold
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4097014754086851076, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: healthThreshold
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4097014754086851076, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: distanceThreshold
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_UseGravity
