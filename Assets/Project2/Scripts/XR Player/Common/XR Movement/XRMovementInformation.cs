@@ -87,8 +87,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 joint.enableCollision = false;
                 joint.linearLimitSpring = new SoftJointLimitSpring()
                 {
-                    spring = 500f,
-                    damper = 75f
+                    spring = 1500f,
+                    damper = 250f
                 };
                 return;
                 // Todo, make this not be dumb
@@ -185,6 +185,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             
             private void AttachJoint()
             {
+                return;
                 joint.anchor = XRInputController.Transform().InverseTransformPoint(CastOriginPosition);
                 joint.connectedAnchor = XRInputController.Transform().InverseTransformPoint(attachedPoint.point);
                 
@@ -235,6 +236,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             private void SetJointFreedom(ConfigurableJointMotion state)
             {
+                return;
                 joint.xMotion = state;
                 joint.yMotion = state;
                 joint.zMotion = state;
@@ -258,8 +260,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 
                 movementController.PlayerRigidbody.AddForce(MagneticVector * movementController.magneticForce, ForceMode.Acceleration);
                 movementController.PlayerRigidbody.AddForce(ManoeuvreVector * movementController.manoeuvreForce, ForceMode.Acceleration);
+                movementController.PlayerRigidbody.AddForce(CastVector * movementController.castForce, ForceMode.Acceleration);
+                
                 Debug.DrawRay(CastOriginPosition, MagneticVector * movementController.magneticForce, Color.blue);
                 Debug.DrawRay(CastOriginPosition, ManoeuvreVector * movementController.manoeuvreForce, Color.cyan);
+                Debug.DrawRay(CastOriginPosition, CastVector * movementController.castForce, Color.green);
             }
         }
 }

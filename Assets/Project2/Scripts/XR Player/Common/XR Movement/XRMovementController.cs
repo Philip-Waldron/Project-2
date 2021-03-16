@@ -9,6 +9,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [Header("Movement Force Settings")]
         [SerializeField, Range(0f, 100f)] public float magneticForce = 50f;
         [SerializeField, Range(0f, 100f)] public float manoeuvreForce = 15f;
+        [SerializeField, Range(0f, 100f)] public float castForce = 15f;
         [SerializeField, Range(0f, 1f)] public float reelingModifier = .25f;
         [Header("Magnet Animation Settings")]
         [SerializeField, Range(float.Epsilon, 1f)] public float attachDuration = .5f;
@@ -28,7 +29,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [SerializeField] private XRInputController.XRControllerButton attach = XRInputController.XRControllerButton.Grip, move = XRInputController.XRControllerButton.Trigger;
         
         private GameObject movementParent;
-        private XRMovementInformation left, right;
+        public XRMovementInformation left, right;
 
         public Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
 
