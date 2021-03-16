@@ -17,7 +17,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private XRMovementController movementController;
             private bool validAnchorLocation, attaching, immediateDetach;
             private float dynamicDistance;
-            
+
             private Vector3 ControllerPosition => XRInputController.Position(check);
             public Vector3 CastOriginPosition => castOrigin.position;
             public Vector3 CastVector => castOrigin.forward;
@@ -40,33 +40,21 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                         limit = dynamicDistance,
                         bounciness = Bounciness
                     };
-                    
-                    return;
-                    if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Forward) || XRInputController.AxisDirection(check, XRInputController.Cardinal.Back))
-                    {
-                        dynamicDistance -= XRInputController.AxisValue(check).y * movementController.reelingModifier;
-                    }
-
-                    joint.linearLimit = new SoftJointLimit()
-                    {
-                        limit = dynamicDistance,
-                        bounciness = Bounciness
-                    };
                 }
             }
 
             public void SetupMovementInformation(XRMovementController controller, GameObject parent, XRInputController.Check set, Material magnetMaterial, float magnetWidth, Material finderMaterial, float finderWidth)
             {
                 movementController = controller;
-                    
+
                 check = set;
                 castOrigin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
                 magnetAnchor = Set.Object(castOrigin.gameObject, $"[Magnet Anchor] {set.ToString()}", position: Vector3.zero).transform;
                 magnetMidpoint = Set.Object(castOrigin.gameObject, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
-                
+
                 finderAnchor = Set.Object(castOrigin.gameObject, $"[Finder Anchor] {set.ToString()}", position: Vector3.zero).transform;
                 finderMidpoint = Set.Object(castOrigin.gameObject, $"[Finder Midpoint] {set.ToString()}", position: Vector3.zero).transform;
-                
+
                 magneticLasso = Set.Object(castOrigin.gameObject, $"[Lasso] {set.ToString()}", position: new Vector3(0,0, 1.5f)).transform;
 
                 magnetVisual = magnetAnchor.gameObject.Line(magnetMaterial, magnetWidth, startEnabled: false);
@@ -75,7 +63,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 anchorVisual = Instantiate(movementController.finderAnchorVisual).transform;
                 anchorVisual.parent = finderAnchor;
                 anchorVisual.ResetLocalTransform();
-                
+
                 ConfigureJoint();
             }
 
@@ -102,7 +90,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 // Set the location of the hip positions, used for casting and locating anchor points
                 castOrigin.localPosition = new Vector3(offset, 0f, -.025f);
                 castOrigin.forward = Vector3.Lerp(castOrigin.forward, ControllerPosition - CastOriginPosition, movementController.finderDamping);
-                
+
                 // Calculate midpoints
                 finderMidpoint.localPosition = new Vector3(0f, 0f, Mathf.Lerp(0f, finderAnchor.localPosition.z, .5f));
                 magnetMidpoint.localPosition = new Vector3(0f, 0f, LimitDistance * .5f);
@@ -137,7 +125,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     validAnchorLocation = false;
                 }
             }
-            
+
             /// <summary>
             /// Draw the two curved lines
             /// </summary>
@@ -154,7 +142,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     Debug.Log($"{check}, tried to attach, but is already attached");
                     return;
                 }
-                
+
                 if (!validAnchorLocation)
                 {
                     Debug.Log($"{check}, tried to attach, but there was no valid anchor location!");
@@ -176,19 +164,19 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 Attached = true;
                 magnetAnchor.SetParent(attachedPoint.transform);
                 AttachJoint();
-                
+
                 if (!immediateDetach) return;
                 Debug.Log($"{check}, immediately detached");
                 immediateDetach = false;
                 TriggerDetach();
             }
-            
+
             private void AttachJoint()
             {
                 return;
                 joint.anchor = XRInputController.Transform().InverseTransformPoint(CastOriginPosition);
                 joint.connectedAnchor = XRInputController.Transform().InverseTransformPoint(attachedPoint.point);
-                
+
                 joint.linearLimit = new SoftJointLimit()
                 {
                     limit = LimitDistance,
@@ -196,7 +184,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 };
 
                 dynamicDistance = LimitDistance;
-                
+
                 SetJointFreedom(ConfigurableJointMotion.Limited);
             }
 
@@ -245,26 +233,32 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public void MoveToAnchor()
             {
                 if (!Attached) return;
-                
-                /*
-                dynamicDistance -= .75f;
-                
-                joint.linearLimit = new SoftJointLimit()
-                {
-                    limit = dynamicDistance,
-                    bounciness = Bounciness
-                };
 
-                return;
-                */
-                
-                movementController.PlayerRigidbody.AddForce(MagneticVector * movementController.magneticForce, ForceMode.Acceleration);
-                movementController.PlayerRigidbody.AddForce(ManoeuvreVector * movementController.manoeuvreForce, ForceMode.Acceleration);
-                movementController.PlayerRigidbody.AddForce(CastVector * movementController.castForce, ForceMode.Acceleration);
-                
-                Debug.DrawRay(CastOriginPosition, MagneticVector * movementController.magneticForce, Color.blue);
-                Debug.DrawRay(CastOriginPosition, ManoeuvreVector * movementController.manoeuvreForce, Color.cyan);
-                Debug.DrawRay(CastOriginPosition, CastVector * movementController.castForce, Color.green);
+                if (movementController.UseMagneticForce)
+                {
+                    movementController.PlayerRigidbody.AddForce(MagneticVector * movementController.MagneticForce, ForceMode.Acceleration);
+                }
+
+                if (movementController.UseCastForce)
+                {
+                    movementController.PlayerRigidbody.AddForce(CastVector * movementController.CastForce, ForceMode.Acceleration);
+                }
+
+                if (movementController.UseManoeuvreForce)
+                {
+                    movementController.PlayerRigidbody.AddForce(ManoeuvreVector * movementController.ManoeuvreForce, ForceMode.Acceleration);
+                }
+
+                if (movementController.UseAverageForce)
+                {
+                    Vector3 averageVector = ((MagneticVector + CastVector) * 0.5f).normalized;
+                    movementController.PlayerRigidbody.AddForce(averageVector * movementController.AverageForce, ForceMode.Acceleration);
+                    Debug.DrawRay(CastOriginPosition, averageVector * movementController.AverageForce, Color.yellow);
+                }
+
+                Debug.DrawRay(CastOriginPosition, MagneticVector * movementController.MagneticForce, Color.blue);
+                Debug.DrawRay(CastOriginPosition, CastVector * movementController.CastForce, Color.green);
+                Debug.DrawRay(CastOriginPosition, ManoeuvreVector * movementController.ManoeuvreForce, Color.cyan);
             }
         }
 }

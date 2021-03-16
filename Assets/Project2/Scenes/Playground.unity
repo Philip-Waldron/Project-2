@@ -10886,6 +10886,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[XR Player]'
       objectReference: {fileID: 0}
+    - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: m_Drag
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: m_Mass
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: magneticForce
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: manoeuvreForce
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: castForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: DisableGravityOnForceApplied
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187127777268213059, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: UseAverageForce
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
 --- !u!1 &748843391

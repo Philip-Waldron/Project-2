@@ -154,8 +154,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a112ca9ec267b4baf3a5ac911e5c56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magneticForce: 35
-  manoeuvreForce: 25
+  UseMagneticForce: 0
+  MagneticForce: 50
+  UseCastForce: 0
+  CastForce: 15
+  UseManoeuvreForce: 0
+  ManoeuvreForce: 15
+  UseAverageForce: 1
+  AverageForce: 15
+  DisableGravityOnForceApplied: 1
   attachDuration: 0.5
   detachDuration: 0.35
   hipOffset: 0.125
@@ -171,6 +178,8 @@ MonoBehaviour:
   magnetDamping: 0.5
   attach: 0
   move: 1
+  left: {fileID: 0}
+  right: {fileID: 0}
 --- !u!114 &3758113860359935872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,8 +202,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3537935100338196466}
   serializedVersion: 2
-  m_Mass: 50
-  m_Drag: 1
+  m_Mass: 60
+  m_Drag: 0.5
   m_AngularDrag: 1
   m_UseGravity: 1
   m_IsKinematic: 0

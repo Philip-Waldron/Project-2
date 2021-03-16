@@ -7,10 +7,15 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
     public class XRMovementController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
-        [SerializeField, Range(0f, 100f)] public float magneticForce = 50f;
-        [SerializeField, Range(0f, 100f)] public float manoeuvreForce = 15f;
-        [SerializeField, Range(0f, 100f)] public float castForce = 15f;
-        [SerializeField, Range(0f, 1f)] public float reelingModifier = .25f;
+        public bool UseMagneticForce;
+        [SerializeField, Range(0f, 100f)] public float MagneticForce = 50f;
+        public bool UseCastForce;
+        [SerializeField, Range(0f, 100f)] public float CastForce = 15f;
+        public bool UseManoeuvreForce;
+        [SerializeField, Range(0f, 100f)] public float ManoeuvreForce = 15f;
+        public bool UseAverageForce;
+        [SerializeField, Range(0f, 100f)] public float AverageForce = 15f;
+        public bool DisableGravityOnForceApplied;
         [Header("Magnet Animation Settings")]
         [SerializeField, Range(float.Epsilon, 1f)] public float attachDuration = .5f;
         [SerializeField, Range(float.Epsilon, 1f)] public float detachDuration = .2f;
@@ -18,16 +23,16 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [SerializeField, Range(0f, 1f)] public float hipOffset = .15f;
         [SerializeField, Range(0f, 1f)] public float headOffset = .5f;
         [Header("Visual Settings")]
-        [SerializeField] public GameObject finderAnchorVisual; 
+        [SerializeField] public GameObject finderAnchorVisual;
         [SerializeField] private Material magnetMaterial, finderMaterial;
         [SerializeField, Range(float.Epsilon, .1f)] private float magnetWidth = .025f, finderWidth = .015f;
         [Header("Cast Location Settings")]
         [SerializeField, Range(0f, 1000f)] public float maximumDistance = 250f;
         [SerializeField, Range(0f, 180f)] public float devianceTolerance = 30f;
         [SerializeField, Range(0f, 1f)] public float finderDamping = .75f, magnetDamping = .5f;
-        
+
         [SerializeField] private XRInputController.XRControllerButton attach = XRInputController.XRControllerButton.Grip, move = XRInputController.XRControllerButton.Trigger;
-        
+
         private GameObject movementParent;
         public XRMovementInformation left, right;
 
@@ -52,12 +57,12 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private void SetTransforms()
         {
             Vector3 position = new Vector3(
-                XRInputController.Position(XRInputController.Check.Head).x, 
-                XRInputController.Position(XRInputController.Check.Head).y - headOffset, 
+                XRInputController.Position(XRInputController.Check.Head).x,
+                XRInputController.Position(XRInputController.Check.Head).y - headOffset,
                 XRInputController.Position(XRInputController.Check.Head).z);
             movementParent.transform.position = position;
             movementParent.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
-            
+
             left.SetTransform(-hipOffset);
             right.SetTransform(hipOffset);
         }
@@ -72,7 +77,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         {
             AttachDetach(left);
             AttachDetach(right);
-            
+
             MoveToAnchor(left);
             MoveToAnchor(right);
         }
@@ -84,17 +89,17 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             if (Physics.Raycast(movementInformation.CastOriginPosition, movementInformation.CastVector, out RaycastHit hit, maximumDistance) && hit.transform.CompareTag("CanAttach"))
             {
-                movementInformation.ValidCurrentAnchorPoint(hit);    
+                movementInformation.ValidCurrentAnchorPoint(hit);
                 debug = Color.green;
-                distance = hit.distance;    
+                distance = hit.distance;
             }
             else
             {
                 movementInformation.NoValidCurrentAnchorPoint();
             }
-            
+
             movementInformation.DrawVisuals();
-            
+
             Debug.DrawRay(movementInformation.CastOriginPosition, movementInformation.CastVector * distance, debug);
         }
 
@@ -109,12 +114,24 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 movementInformation.TriggerDetach();
             }
         }
-        
+
         private void MoveToAnchor(XRMovementInformation movementInformation)
         {
             if (XRInputController.ControllerButton(move, movementInformation.check))
             {
                 movementInformation.MoveToAnchor();
+
+                if (DisableGravityOnForceApplied)
+                {
+                    PlayerRigidbody.useGravity = !movementInformation.Attached;
+                }
+            }
+            else
+            {
+                if (DisableGravityOnForceApplied)
+                {
+                    PlayerRigidbody.useGravity = true;
+                }
             }
         }
     }
