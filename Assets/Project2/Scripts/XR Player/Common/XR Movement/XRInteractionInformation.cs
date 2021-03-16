@@ -29,6 +29,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private static Vector3 ManoeuvreVector => XRInputController.Forward(XRInputController.Check.Head);
             private Vector3 MagneticVector => (attachedPoint.point - CastOriginPosition).normalized;
             private Vector3 FinderDefaultPosition => new Vector3(0f, 0f, interactionController.maximumDistance);
+            private float ScaleFactor => Vector3.Distance(CastOriginPosition, finderAnchor.position);
             private float LimitDistance => Vector3.Distance(CastOriginPosition, magnetAnchor.position);
             
             private Vector3 LassoPosition => new Vector3(0f, 0f, interactionController.lassoOffset);
@@ -38,7 +39,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private void LateUpdate()
             {
                 magneticLasso.localPosition = LassoPosition;
-
+                anchorVisual.ScaleFactor(ScaleFactor);
+                
                 if (grabbed)
                 {
                     grabbedRigidbody.AddForce((magneticLasso.position - grabbedObject.position) * interactionController.magneticGrabForce); 
@@ -51,6 +53,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     
                 check = set;
                 castOrigin = Set.Object(parent, $"[Movement Origin] {set.ToString()}", position: Vector3.zero).transform;
+                GameObject visual = Instantiate(interactionController.castOrigin, castOrigin, worldPositionStays: true);
+
                 magnetAnchor = Set.Object(castOrigin.gameObject, $"[Magnet Anchor] {set.ToString()}", position: Vector3.zero).transform;
                 magnetMidpoint = Set.Object(castOrigin.gameObject, $"[Movement Midpoint] {set.ToString()}", position: Vector3.zero).transform;
                 
@@ -74,7 +78,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public void SetTransform(float offset)
             {
                 // Set the location of the hip positions, used for casting and locating anchor points
-                castOrigin.localPosition = new Vector3(offset, 0f, -.025f);
+                castOrigin.localPosition = new Vector3(offset, 0f, -.05f);
                 castOrigin.forward = Vector3.Lerp(castOrigin.forward, ControllerPosition - CastOriginPosition, interactionController.finderDamping);
                 
                 // Calculate midpoints
@@ -94,8 +98,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 validAnchorPoint = raycastHit;
                 finderAnchor.position = Vector3.Lerp(finderAnchor.position, validAnchorPoint.point, interactionController.finderDamping);
                 anchorVisual.forward = validAnchorPoint.normal;
-                anchorVisual.ScaleFactor(validAnchorPoint.distance);
-                
+                anchorVisual.gameObject.SetActive(true);
                 validAnchorLocation = validAnchor;
                 validGrabObject = validGrab;
             }
@@ -112,7 +115,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 else
                 {
                     finderAnchor.localPosition = Vector3.Lerp(finderAnchor.localPosition, FinderDefaultPosition, interactionController.finderDamping);
-                    anchorVisual.ScaleFactor(0f);
+                    anchorVisual.gameObject.SetActive(true);
                     validAnchorLocation = false;
                     validGrabObject = false;
                 }

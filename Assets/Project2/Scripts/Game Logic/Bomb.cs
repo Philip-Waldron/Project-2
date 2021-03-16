@@ -29,11 +29,11 @@ namespace Project2.Scripts.Game_Logic
             Rigidbody.velocity = velocity;
         }
 
-        private void OnCollisionEnter(Collision other)
+        private void OnCollisionEnter(Collision collision)
         {
-            if (!other.transform.TryGetComponent(out Objective objective))
+            if (!collision.transform.TryGetComponent(out Objective objective))
             {
-                gameController.Collision();
+                gameController.Collision(collision.relativeVelocity.magnitude);
             }
         }
     }

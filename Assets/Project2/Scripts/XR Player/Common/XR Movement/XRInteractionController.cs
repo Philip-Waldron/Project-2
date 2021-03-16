@@ -22,6 +22,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [Header("Cast Origin Position Settings")]
         [SerializeField, Range(0f, 1f)] public float hipOffset = .15f;
         [SerializeField, Range(0f, 1f)] public float headOffset = .5f;
+        [SerializeField] public GameObject castOrigin;
         [Header("Visual Settings")]
         [SerializeField] public GameObject finderAnchorVisual; 
         [SerializeField] private Material magnetMaterial, finderMaterial;
