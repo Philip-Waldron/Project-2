@@ -1,4 +1,5 @@
 ﻿using System;
+using DG.Tweening;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using TMPro;
 using UnityEngine;
@@ -8,11 +9,15 @@ namespace Project2.Scripts.Game_Logic
 {
     public class GameController : XRInputAbstraction
     {
-        [Header("References")]
+        [Header("Core References")]
         [SerializeField] private Bomb bomb;
         [SerializeField] private Objective objective;
         [SerializeField] public TextMeshPro bombText;
         [SerializeField] public MeshRenderer healthVisual;
+        [Header("Additional References")]
+        [SerializeField] public TextMeshPro introText;
+        [SerializeField] public TextMeshPro introTimer;
+        [SerializeField] private Transform leftDoor, rightDoor;
         [Header("Settings")]
         [SerializeField] private float startTime;
         [SerializeField] private float startHealth;
@@ -20,15 +25,18 @@ namespace Project2.Scripts.Game_Logic
         [Header("Game Events")]
         public UnityEvent onWin;
         public UnityEvent onLose;
+        public UnityEvent onStart;
         public UnityEvent onHealthBelowThreshold;
         public UnityEvent onTimeBelowThreshold;
         public UnityEvent onDistanceBelowThreshold;
         public UnityEvent onEjection;
 
         private bool time, health, distance;
-        private bool countdown, finished, coupled = true;
+        private bool countdown, finished, coupled;
         private float currentTime, currentHealth, startDistance;
         private static readonly int Health = Shader.PropertyToID("_Health");
+
+        public bool Ejected { get; private set; }
 
         private float DistanceValue => CurrentDistance / startDistance;
         private float TimeValue => currentTime / startTime;
@@ -52,25 +60,49 @@ namespace Project2.Scripts.Game_Logic
 
         public void Update()
         {
+            CheckCoupleDecoupleState();
+            if (finished) return;
+            CheckThresholdStates();
+            CountdownTimer();
+        }
+
+        private void CheckCoupleDecoupleState()
+        {
+            // Once the bomb has been initially coupled to the player
             if (coupled)
             {
+                // Set it in the right position on the player
                 bomb.transform.position = BombPosition;
                 bomb.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
+                // Check if you need to eject it from the player
+                if (DecoupleTrigger(out XRInputController.Check check))
+                {
+                    Ejected = true;
+                    coupled = false;
+                    bomb.Decouple(XRInputController.Forward(check) * 7.5f);
+                    onEjection.Invoke();
+                }
             }
-            if (coupled && XRInputController.InputEvent(XRInputController.XRControllerButton.Primary).State(XRInputController.InputEvents.InputEvent.Transition.Down, out XRInputController.Check check))
+            else if (!Ejected && CoupleTrigger)
             {
-                coupled = false;
-                bomb.Eject(XRInputController.Forward(check) * 5f, this);
-                onEjection.Invoke();
+                bomb.Couple(this);
+                bomb.transform.DOMove(BombPosition, .25f).OnComplete(()=> coupled = true);
+                bomb.transform.DORotate(XRInputController.NormalisedRotation(XRInputController.Check.Head), .25f).OnComplete(()=> bomb.transform.SetParent(transform));
+                CoupleTrigger = false;
+
+                leftDoor.DOLocalMove(new Vector3(0f, 0f, 2f), 3f);
+                rightDoor.DOLocalMove(new Vector3(0f, 0f, -2f), 3f);
+                
+                onStart.Invoke();
             }
+        }
 
-            if (finished) return;
-
+        private void CheckThresholdStates()
+        {
             if (!countdown || currentHealth <= 0f)
             {
                 FailedObjective();
             }
-
             if (!time && TimeValue <= timeThreshold)
             {
                 TimeThreshold();
@@ -83,7 +115,10 @@ namespace Project2.Scripts.Game_Logic
             {
                 DistanceThreshold();
             }
+        }
 
+        private void CountdownTimer()
+        {
             if (countdown)
             {
                 if (currentTime > 0)
@@ -98,7 +133,7 @@ namespace Project2.Scripts.Game_Logic
                 }
             }
         }
-
+        
         private void DisplayTime(float timeToDisplay)
         {
             timeToDisplay += 1;
@@ -107,6 +142,7 @@ namespace Project2.Scripts.Game_Logic
             float seconds = Mathf.FloorToInt(timeToDisplay % 60);
 
             bombText.SetText($"{minutes:00}:{seconds:00}");
+            introTimer.SetText($"{minutes:00}:{seconds:00}");
         }
 
         private void DisplayHealth()
@@ -161,5 +197,14 @@ namespace Project2.Scripts.Game_Logic
             bombText.SetText("Oof!");
             onLose.Invoke();
         }
+
+        private static bool DecoupleTrigger(out XRInputController.Check check)
+        {
+            bool state = XRInputController.InputEvent(XRInputController.XRControllerButton.Primary).State(XRInputController.InputEvents.InputEvent.Transition.Down, out XRInputController.Check setCheck);
+            check = setCheck;
+            return state;
+        }
+
+        public bool CoupleTrigger { private get; set; }
     }
 }

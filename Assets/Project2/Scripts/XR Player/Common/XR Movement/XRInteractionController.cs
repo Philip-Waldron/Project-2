@@ -1,9 +1,11 @@
-﻿using Project2.Scripts.XR_Player.Common.XR_Input;
+﻿using Project2.Scripts.Game_Logic;
+using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using XR_Prototyping.Scripts.Utilities.Generic;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
+    [RequireComponent(typeof(GameController))]
     public class XRInteractionController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
@@ -39,6 +41,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private GameObject interactionParent;
         private bool useGravity;
         private XRInteractionInformation left, right;
+        public GameController GameController => GetComponent<GameController>();
 
         public Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
 

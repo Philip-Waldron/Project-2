@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using Project2.Scripts.Game_Logic;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private Transform grabbedObject;
             private Outline grabbedOutline;
             private Rigidbody grabbedRigidbody;
+            private static readonly int State = Shader.PropertyToID("_State");
 
             private Vector3 ControllerPosition => XRInputController.Position(check);
             public Vector3 CastOriginPosition => castOrigin.position;
@@ -34,12 +36,13 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             
             private Vector3 LassoPosition => new Vector3(0f, 0f, interactionController.lassoOffset);
 
-            public bool Attached { get; set; }
+            public bool Attached { get; private set; }
 
-            private void LateUpdate()
+            private void Update()
             {
                 magneticLasso.localPosition = LassoPosition;
                 anchorVisual.ScaleFactor(ScaleFactor);
+                anchorFinder.material.SetInt(nameID: State, value: validAnchorLocation || validGrabObject ? 0 : 1);
                 
                 if (grabbed)
                 {
@@ -108,6 +111,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public void NoValidCurrentAnchorPoint()
             {
                 // If the last valid anchor point is within a deviance from the origin, count it as valid
+                /*
                 if (Vector3.Angle(CastVector, (validAnchorPoint.point - CastOriginPosition)) <= interactionController.devianceTolerance)
                 {
                     ValidCurrentAnchorPoint(validAnchorPoint, validAnchorLocation, validGrabObject);
@@ -115,10 +119,15 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 else
                 {
                     finderAnchor.localPosition = Vector3.Lerp(finderAnchor.localPosition, FinderDefaultPosition, interactionController.finderDamping);
-                    anchorVisual.gameObject.SetActive(true);
+                    anchorVisual.gameObject.SetActive(false);
                     validAnchorLocation = false;
                     validGrabObject = false;
-                }
+                }*/
+                
+                finderAnchor.localPosition = Vector3.Lerp(finderAnchor.localPosition, FinderDefaultPosition, interactionController.finderDamping);
+                anchorVisual.gameObject.SetActive(false);
+                validAnchorLocation = false;
+                validGrabObject = false;
             }
             
             /// <summary>
@@ -143,6 +152,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     Debug.Log($"{check}, trying to attach to {validAnchorPoint.point}");
                     attaching = true;
                     attachedPoint = validAnchorPoint;
+                    magnetVisual.material.SetInt(State, 1);
                     magnetVisual.enabled = true;
                     magnetAnchor.position = CastOriginPosition;
                     magnetAnchor.DOMove(attachedPoint.point, interactionController.attachDuration).OnComplete(AttachAnchor);
@@ -152,6 +162,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     attaching = true;
                     attachedPoint = validAnchorPoint;
                     magnetAnchor.position = CastOriginPosition;
+                    magnetVisual.material.SetInt(State, 0);
                     magnetVisual.enabled = true;
                     magnetAnchor.DOMove(attachedPoint.point, .1f).OnComplete(GrabObject);
                 }
@@ -180,7 +191,20 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 grabbedObject = attachedPoint.transform;
                 grabbedRigidbody = grabbedObject.GetComponent<Rigidbody>();
                 
-                Debug.LogWarning($"Grabbing {grabbedObject.name}");
+                if (grabbedObject.TryGetComponent(out Bomb bomb))
+                {
+                    interactionController.GameController.CoupleTrigger = true;
+                    if (!interactionController.GameController.Ejected)
+                    {
+                        Debug.Log($"<b>Grabbing the bomb for the first time, will couple with player!</b>");
+                        return;
+                    }
+                    Debug.Log($"<b>Grabbing the bomb!</b>");
+                }
+                else
+                {
+                    Debug.Log($"Grabbing regular ol' object: <b>{grabbedObject.name}</b>");
+                }
 
                 if (grabbedRigidbody == null)
                 {

@@ -21,7 +21,7 @@ namespace Project2.Scripts.Game_Logic
             
             if (other.transform.TryGetComponent(out Bomb bomb))
             {
-                bomb.Couple(Rigidbody.velocity);
+                bomb.AttachToObjective(Rigidbody.velocity);
                 Complete(bomb);
             }
         }
