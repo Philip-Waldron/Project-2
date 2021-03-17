@@ -10,16 +10,24 @@ class AudioGroups {
     public static String RetroBass { get { return "RetroBass"; } }
     public static String RetroArps { get { return "RetroArps"; } }
     public static String DreamsArps { get { return "DreamsArps"; } }
+
+    public static String DrumtrackAlternate { get { return "DrumtrackAlternate"; } }
+
+    public static String FuzzBass { get { return "FuzzBass"; } }
+
+    public static String AnalogLead { get { return "AnalogLead"; } }
     public static String Tension { get { return "Tension"; } }
     public static String TensionBass { get { return "TensionBass"; } }
     public static String TensionLead { get { return "TensionLead"; } }
     public static String TensionArps { get { return "TensionDreamArps"; } }
+    public static String TensionBassArps { get { return "TensionBassArps"; } }
+    public static String TensionAnalogLeadDistorted { get { return "TensionAnalogLeadDistorted"; } }
     public static String Drumtrack { get { return "Drumtrack"; } }
 }
 
 public class MusicManager : MonoBehaviour
 {
-    public static MusicManager instance { get; private set; }
+    public static MusicManager Instance { get; private set; }
     public AudioMixer audioMixer;
     public AudioSource referenceSource;
 
@@ -31,7 +39,7 @@ public class MusicManager : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
     private void Start()
     {
@@ -39,6 +47,7 @@ public class MusicManager : MonoBehaviour
         activeMusicState.OnStart();
 
         runLoopTime = (referenceSource.clip.length / 2f) - 0.1f;
+        pendingMusicStateTransition = new TensionMusicState();
     }
 
     private void Update()
@@ -66,19 +75,56 @@ public class MusicManager : MonoBehaviour
         }
     }
 
-    public void MuteAudioGroup(String audioGroupName)
+    public void MuteAudioGroup(String audioGroupName, float duration = 0.0f)
     {
-        audioMixer.SetFloat($"{audioGroupName}Volume", -80.0f);
+        InterpolateValue(0f, -80f, duration, lerpedValue =>
+        {
+            audioMixer.SetFloat($"{audioGroupName}Volume", lerpedValue);
+        });
     }
 
-    public void UnmuteAudioGroup(String audioGroupName)
+    public void UnmuteAudioGroup(String audioGroupName, float duration = 0)
     {
-        audioMixer.SetFloat($"{audioGroupName}Volume", 0.0f);
+        InterpolateValue(-80f, 0f, duration, lerpedValue =>
+        {
+            audioMixer.SetFloat($"{audioGroupName}Volume", lerpedValue);
+        });
     }
 
     public void SetDeathMusic() 
     {
-        audioMixer.SetFloat("MasterPitch", 0.4f);
+        var startingValue = 1f;
+        audioMixer.GetFloat("MasterPitch", out startingValue);
+
+        InterpolateValue(startingValue, 0.4f, 1, lerpedValue =>
+        {
+            audioMixer.SetFloat("MasterPitch", lerpedValue);
+        });
+        
+    }
+
+    void InterpolateValue(float startValue, float targetValue, float duration, Action<float> callback)
+    {
+        var transition = TransitionValueCoroutine(startValue, targetValue, duration, callback);
+        StartCoroutine(transition);
+    }
+
+    IEnumerator TransitionValueCoroutine(float startValue, float endValue, float duration, Action<float> callback)
+    {
+        if (startValue == endValue) {
+            callback(startValue);
+            yield break;
+        }
+
+        float progress = 0.0f;
+
+        while (progress < 1.0)
+        {
+            progress += Time.unscaledDeltaTime / duration;
+            var lerpedValue = Mathf.Lerp(startValue, endValue, progress);
+            callback(lerpedValue);
+            yield return null;
+        }
     }
 }
 
@@ -93,10 +139,10 @@ class BuildupMusicState: MusicState
     int variationCount = 0;
     public void OnStart()
     {
-        MusicManager.instance.MuteAudioGroup(AudioGroups.Tension);
-        MusicManager.instance.MuteAudioGroup(AudioGroups.Drumtrack);
-        MusicManager.instance.UnmuteAudioGroup(AudioGroups.Buildup);
-        MusicManager.instance.UnmuteAudioGroup(AudioGroups.RetroBass);
+        MusicManager.Instance.MuteAudioGroup(AudioGroups.Tension);
+        MusicManager.Instance.MuteAudioGroup(AudioGroups.Drumtrack);
+        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Buildup);
+        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.RetroBass, 1.25f);
     }
 
     public void Variate()
@@ -105,39 +151,36 @@ class BuildupMusicState: MusicState
 
         if (variationCount == 1)
         {
-            MusicManager.instance.UnmuteAudioGroup(AudioGroups.Drumtrack);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.RetroArps, 1.25f);
         }
 
         else if (variationCount == 2)
         {
-            MusicManager.instance.UnmuteAudioGroup(AudioGroups.RetroArps);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.25f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DreamsArps, 1.25f);
         }
 
         else if (variationCount == 3)
         {
-            MusicManager.instance.UnmuteAudioGroup(AudioGroups.DreamsArps);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.FuzzBass, 0.0f);
         }
 
-        else if (variationCount >= 3)
+        else if (variationCount == 4)
         {
-            var randomValue = new System.Random().Next(0, 2);
-            if (randomValue == 1)
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.AnalogLead, 0.25f);
+        }
+
+        else if (variationCount >= 5)
+        {
+            if (variationCount % 2 == 0)
             {
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.Drumtrack);
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.RetroArps);
-                MusicManager.instance.MuteAudioGroup(AudioGroups.DreamsArps);
-            }
-            else if(randomValue == 2)
-            {
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.Drumtrack);
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.DreamsArps);
-                MusicManager.instance.MuteAudioGroup(AudioGroups.RetroArps);
+                MusicManager.Instance.MuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.0f);
+                MusicManager.Instance.UnmuteAudioGroup(AudioGroups.AnalogLead, 0.0f);
             }
             else
             {
-                MusicManager.instance.MuteAudioGroup(AudioGroups.Drumtrack);
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.RetroArps);
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.DreamsArps);
+                MusicManager.Instance.MuteAudioGroup(AudioGroups.AnalogLead, 0.25f);
+                MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.25f);
             }
         }
     }
@@ -148,10 +191,10 @@ class TensionMusicState : MusicState
     int variationCount = 0;
     public void OnStart()
     {
-        MusicManager.instance.MuteAudioGroup(AudioGroups.Buildup);
-        MusicManager.instance.MuteAudioGroup(AudioGroups.Drumtrack);
-        MusicManager.instance.UnmuteAudioGroup(AudioGroups.Tension);
-        MusicManager.instance.UnmuteAudioGroup(AudioGroups.TensionBass);
+        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Tension);
+        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionBass);
+        MusicManager.Instance.MuteAudioGroup(AudioGroups.Buildup, 4.0f);
+        
     }
 
     public void Variate()
@@ -160,29 +203,33 @@ class TensionMusicState : MusicState
 
         if (variationCount == 1)
         {
-            MusicManager.instance.UnmuteAudioGroup(AudioGroups.TensionLead);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionLead);
         }
 
         else if (variationCount == 2)
         {
-            MusicManager.instance.UnmuteAudioGroup(AudioGroups.Drumtrack);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Drumtrack);
         }
 
         else if (variationCount == 3)
         {
-            MusicManager.instance.UnmuteAudioGroup(AudioGroups.TensionArps);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionArps, 0.75f);
         }
 
-        else if (variationCount >= 3)
+        else if (variationCount == 4)
         {
-            var randomValue = new System.Random().Next(0, 1);
-            if (randomValue == 0)
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionAnalogLeadDistorted, 0.5f);
+        }
+
+        else if (variationCount >= 5)
+        {
+            if (variationCount % 2 == 0)
             {
-                MusicManager.instance.UnmuteAudioGroup(AudioGroups.TensionArps);
+                MusicManager.Instance.MuteAudioGroup(AudioGroups.TensionAnalogLeadDistorted, 0.0f);
             }
-            else if (randomValue == 1)
+            else
             {
-                MusicManager.instance.MuteAudioGroup(AudioGroups.TensionArps);
+                MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionAnalogLeadDistorted, 0.0f);
             }
         }
     }
