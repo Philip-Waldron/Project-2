@@ -15873,6 +15873,7 @@ MonoBehaviour:
   - {fileID: 494120760}
   - {fileID: 759210077}
   - {fileID: 1118183285}
+  ObjectsToSpawnFixedScale: []
   NumberOfObjectsToSpawn: 250
   MinScale: {x: 0.2, y: 0.2, z: 0.2}
   MaxScale: {x: 10, y: 10, z: 10}
