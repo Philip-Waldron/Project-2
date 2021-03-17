@@ -21,6 +21,11 @@ public class GenerateGarbageWithinBounds : MonoBehaviour
     public PieceOfGarbage[] LegendaryGarbage;
     public int AmountOfGarbageToSpawn;
 
+    [Range(0f, 100f)]
+    public float ChanceToSpin = 2f;
+    public Vector3 MinSpinTorque;
+    public Vector3 MaxSpinTorque;
+
     private void Start()
     {
         int spawnCount = 0;
@@ -39,6 +44,8 @@ public class GenerateGarbageWithinBounds : MonoBehaviour
         Transform spawnedTransform = Instantiate(pieceOfGarbage.GarbageObject, randomPosition, Random.rotation).transform;
 
         SetGarbageScale(pieceOfGarbage, spawnedTransform);
+
+        RollForSpin(spawnedTransform);
     }
 
     private void SetGarbageScale(PieceOfGarbage pieceOfGarbage, Transform garbageTransform)
@@ -81,5 +88,16 @@ public class GenerateGarbageWithinBounds : MonoBehaviour
 
         // if (roll < 100)
         return CommonGarbage[Random.Range(0, CommonGarbage.Length)];
+    }
+
+    private void RollForSpin(Transform garbageToSpin)
+    {
+        float roll = Random.Range(0f, 100f);
+
+        if (roll < ChanceToSpin)
+        {
+            var torque = new Vector3(Random.Range(MinSpinTorque.x, MaxSpinTorque.x), Random.Range(MinSpinTorque.y, MaxSpinTorque.y), Random.Range(MinSpinTorque.z, MaxSpinTorque.z));
+            garbageToSpin.GetComponent<Rigidbody>().AddTorque(torque, ForceMode.Impulse);
+        }
     }
 }
