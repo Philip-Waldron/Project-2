@@ -39,7 +39,6 @@ public class MusicManager : MonoBehaviour
         activeMusicState.OnStart();
 
         runLoopTime = (referenceSource.clip.length / 2f) - 0.1f;
-        pendingMusicStateTransition = new TensionMusicState();
     }
 
     private void Update()
@@ -75,6 +74,11 @@ public class MusicManager : MonoBehaviour
     public void UnmuteAudioGroup(String audioGroupName)
     {
         audioMixer.SetFloat($"{audioGroupName}Volume", 0.0f);
+    }
+
+    public void SetDeathMusic() 
+    {
+        audioMixer.SetFloat("MasterPitch", 0.4f);
     }
 }
 
