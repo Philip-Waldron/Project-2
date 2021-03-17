@@ -97,7 +97,7 @@ public class GenerateGarbageWithinBounds : MonoBehaviour
         if (roll < ChanceToSpin)
         {
             var torque = new Vector3(Random.Range(MinSpinTorque.x, MaxSpinTorque.x), Random.Range(MinSpinTorque.y, MaxSpinTorque.y), Random.Range(MinSpinTorque.z, MaxSpinTorque.z));
-            garbageToSpin.GetComponent<Rigidbody>().AddTorque(torque, ForceMode.Impulse);
+            garbageToSpin.GetComponent<Rigidbody>().AddTorque(torque, ForceMode.VelocityChange);
         }
     }
 }
