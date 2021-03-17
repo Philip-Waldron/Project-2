@@ -196,6 +196,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     interactionController.GameController.CoupleTrigger = true;
                     if (!interactionController.GameController.Ejected)
                     {
+                        immediateDetach = true;
                         Debug.Log($"<b>Grabbing the bomb for the first time, will couple with player!</b>");
                         return;
                     }
