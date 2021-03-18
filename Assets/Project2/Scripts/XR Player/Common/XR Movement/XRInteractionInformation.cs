@@ -20,7 +20,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private bool validAnchorLocation, attaching, immediateDetach, validGrabObject;
             
             private bool grabbed, gravity;
-            private Transform grabbedObject;
+            private Transform grabbedObject, anchoredObject;
             private Outline grabbedOutline;
             private Rigidbody grabbedRigidbody;
             private static readonly int State = Shader.PropertyToID("_State");
@@ -105,7 +105,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 validAnchorLocation = validAnchor;
                 validGrabObject = validGrab;
                 anchorFinder.material.SetColor(Colour, interactionController.validAnchorColour);
-
             }
             /// <summary>
             /// 
@@ -115,8 +114,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             /// <param name="validGrab"></param>
             private void SearchForValidAnchorPoint(RaycastHit raycastHit, bool validAnchor, bool validGrab)
             {
-                anchorFinder.material.SetColor(Colour, interactionController.searchingAnchorColour);
                 ValidCurrentAnchorPoint(raycastHit, validAnchor, validGrab);
+                anchorFinder.material.SetColor(Colour, interactionController.searchingAnchorColour);
             }
             /// <summary>
             /// Called when the user is not pointing directly at a valid point
@@ -193,7 +192,15 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             {
                 attaching = false;
                 Attached = true;
-                magnetAnchor.SetParent(attachedPoint.transform);
+                anchoredObject = attachedPoint.transform;
+                magnetAnchor.SetParent(anchoredObject);
+                
+                if (anchoredObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
+                {
+                    outline.OutlineColor = interactionController.magnetAnchorColour;
+                    outline.enabled = true;
+                }
+                
                 AttachJoint();
                 
                 if (!immediateDetach) return;
@@ -230,7 +237,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     return;
                 }
 
-                grabbedRigidbody.velocity = Vector3.zero;
+                // grabbedRigidbody.velocity = Vector3.zero;
+
+                if (grabbedObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
+                {
+                    outline.OutlineColor = interactionController.magnetGrabColour;
+                    outline.enabled = true;
+                }
+                
                 magnetAnchor.SetParent(grabbedObject);
                 gravity = grabbedRigidbody.useGravity;
                 grabbedRigidbody.useGravity = false;
@@ -245,11 +259,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private void ReleaseObject()
             {
                 Debug.Log($"Releasing {grabbedObject.name}!");
-                
                 magnetAnchor.DOMove(CastOriginPosition, interactionController.detachDuration).OnComplete(DetachAnchor);
                 grabbed = false;
                 grabbedRigidbody.velocity *= 2f;
                 grabbedRigidbody.useGravity = gravity;
+                if (grabbedObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
+                {
+                    outline.enabled = false;
+                }
             }
 
             private void AttachJoint() { }
@@ -277,6 +294,10 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 else
                 {
                     Debug.Log($"{check}, detaching anchor");
+                    if (anchoredObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
+                    {
+                        outline.enabled = false;
+                    }
                     magnetAnchor.DOMove(CastOriginPosition, interactionController.detachDuration).OnComplete(DetachAnchor);
                 }
             }

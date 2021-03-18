@@ -225,14 +225,14 @@ MonoBehaviour:
   validAnchorColour: {r: 1, g: 0.46219245, b: 0, a: 0.29411766}
   invalidAnchorColour: {r: 1, g: 0, b: 0.28581238, a: 0.29411766}
   searchingAnchorColour: {r: 1, g: 0, b: 0.736475, a: 0.29411766}
-  maximumDistance: 300
+  maximumDistance: 150
   devianceTolerance: 20
   finderDamping: 0.75
   magnetDamping: 0.5
   attach: 0
   move: 1
   lassoOffset: 3.5
-  magneticGrabForce: 3.5
+  magneticGrabForce: 5
 --- !u!114 &3758113860359935872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,7 +256,7 @@ Rigidbody:
   m_GameObject: {fileID: 3537935100338196466}
   serializedVersion: 2
   m_Mass: 60
-  m_Drag: 0.5
+  m_Drag: 0.25
   m_AngularDrag: 1
   m_UseGravity: 1
   m_IsKinematic: 0
