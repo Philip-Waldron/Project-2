@@ -214,12 +214,17 @@ MonoBehaviour:
   detachDuration: 0.35
   hipOffset: 0.125
   headOffset: 0.45
-  castOrigin: {fileID: 0}
+  castOrigin: {fileID: 3275723690943348520, guid: f95031e8fad50a5408690eb304190543, type: 3}
   finderAnchorVisual: {fileID: 4209803132150304382, guid: 738711139fc88ca46a486c471f11a8c0, type: 3}
   magnetMaterial: {fileID: 2100000, guid: 3261223580563ac408e441d3b2962739, type: 2}
   finderMaterial: {fileID: 2100000, guid: 1a7895d178076424cba86fbd0682ef45, type: 2}
   magnetWidth: 0.05
   finderWidth: 0.025
+  magnetAnchorColour: {r: 0.013883919, g: 0.8969184, b: 0.9811321, a: 0.5882353}
+  magnetGrabColour: {r: 0, g: 1, b: 0.5042522, a: 0.5882353}
+  validAnchorColour: {r: 1, g: 0.46219245, b: 0, a: 0.29411766}
+  invalidAnchorColour: {r: 1, g: 0, b: 0.28581238, a: 0.29411766}
+  searchingAnchorColour: {r: 1, g: 0, b: 0.736475, a: 0.29411766}
   maximumDistance: 300
   devianceTolerance: 20
   finderDamping: 0.75
