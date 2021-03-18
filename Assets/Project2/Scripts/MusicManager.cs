@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project2.Scripts.Game_Logic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,17 +26,23 @@ class AudioGroups {
     public static String Drumtrack { get { return "Drumtrack"; } }
 }
 
+
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance { get; private set; }
     public AudioMixer audioMixer;
     public AudioSource referenceSource;
 
-    private float runLoopTime;
-    private float activeRunLoopTime = 0.0f;
+    private double lastLoopTime;
+    private double runLoopTime;
+    double activeRunLoopTime = 0.0f;
 
     public MusicState activeMusicState;
     private MusicState pendingMusicStateTransition;
+
+    public AnimationCurve linearAnimationCurve;
+    public AnimationCurve logarithmicAnimationCurve;
+    public AnimationCurve exponentialAnimationCurve;
 
     private void Awake()
     {
@@ -46,18 +53,19 @@ public class MusicManager : MonoBehaviour
         activeMusicState = new BuildupMusicState();
         activeMusicState.OnStart();
 
-        runLoopTime = (referenceSource.clip.length / 2f) - 0.3f;
+        lastLoopTime = AudioSettings.dspTime;
+        runLoopTime = (((double)referenceSource.clip.samples / referenceSource.clip.frequency) / 2d);
 
-        pendingMusicStateTransition = new TensionMusicState();
+        //pendingMusicStateTransition = new TensionMusicState();
     }
 
     private void Update()
     {
-        activeRunLoopTime += Time.deltaTime;
+        activeRunLoopTime = (AudioSettings.dspTime);
 
-        if (activeRunLoopTime >= runLoopTime)
+        if ((activeRunLoopTime - lastLoopTime) >= runLoopTime)
         {
-            activeRunLoopTime = 0.0f;
+            lastLoopTime = activeRunLoopTime;
             runLoopCompleted();
         }
     }
@@ -78,18 +86,22 @@ public class MusicManager : MonoBehaviour
 
     public void MuteAudioGroup(String audioGroupName, float duration = 0.0f)
     {
-        InterpolateValue(0f, -80f, duration, lerpedValue =>
+        audioMixer.GetFloat($"{audioGroupName}Volume", out float existingValue);
+
+        InterpolateValue(existingValue, -80f, duration, lerpedValue =>
         {
             audioMixer.SetFloat($"{audioGroupName}Volume", lerpedValue);
-        });
+        }, exponentialAnimationCurve);
     }
 
     public void UnmuteAudioGroup(String audioGroupName, float duration = 0)
     {
-        InterpolateValue(-80f, 0f, duration, lerpedValue =>
+        audioMixer.GetFloat($"{audioGroupName}Volume", out float existingValue);
+
+        InterpolateValue(existingValue, -0.05f, duration, lerpedValue =>
         {
             audioMixer.SetFloat($"{audioGroupName}Volume", lerpedValue);
-        });
+        }, logarithmicAnimationCurve);
     }
 
     public void OnTimeBelowThreshold()
@@ -99,25 +111,24 @@ public class MusicManager : MonoBehaviour
 
     public void SetDeathMusic() 
     {
-        var startingValue = 1f;
-        audioMixer.GetFloat("MasterPitch", out startingValue);
+        audioMixer.GetFloat("MasterPitch", out float startingValue);
 
         InterpolateValue(startingValue, 0.4f, 1, lerpedValue =>
         {
             audioMixer.SetFloat("MasterPitch", lerpedValue);
-        });
+        }, linearAnimationCurve);
     }
 
-    void InterpolateValue(float startValue, float targetValue, float duration, Action<float> callback)
+    void InterpolateValue(float startValue, float targetValue, float duration, Action<float> callback, AnimationCurve curve)
     {
-        var transition = TransitionValueCoroutine(startValue, targetValue, duration, callback);
+        var transition = TransitionValueCoroutine(startValue, targetValue, duration, callback, curve);
         StartCoroutine(transition);
     }
 
-    IEnumerator TransitionValueCoroutine(float startValue, float endValue, float duration, Action<float> callback)
+    IEnumerator TransitionValueCoroutine(float startValue, float endValue, float duration, Action<float> callback, AnimationCurve curve)
     {
-        if (startValue == endValue) {
-            callback(startValue);
+        if (startValue == endValue || duration == 0) {
+            callback(endValue);
             yield break;
         }
 
@@ -126,10 +137,12 @@ public class MusicManager : MonoBehaviour
         while (progress < 1.0)
         {
             progress += Time.unscaledDeltaTime / duration;
-            var lerpedValue = Mathf.Lerp(startValue, endValue, progress);
+            var animationProgress = curve.Evaluate(progress);
+            var lerpedValue = Mathf.LerpUnclamped(startValue, endValue, animationProgress);
             callback(lerpedValue);
             yield return null;
         }
+        callback(endValue);
     }
 }
 
@@ -147,7 +160,7 @@ class BuildupMusicState: MusicState
         MusicManager.Instance.MuteAudioGroup(AudioGroups.Tension);
         MusicManager.Instance.MuteAudioGroup(AudioGroups.Drumtrack);
         MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Buildup);
-        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.RetroBass, 0.1f);
+        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.RetroBass, 1.4f);
     }
 
     public void Variate()
@@ -156,23 +169,23 @@ class BuildupMusicState: MusicState
 
         if (variationCount == 1)
         {
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.RetroArps, 0.1f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.RetroArps, 0.0f);
         }
 
         else if (variationCount == 2)
         {
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.1f);
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DreamsArps, 0.1f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.0f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DreamsArps, 0.0f);
         }
 
         else if (variationCount == 3)
         {
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.FuzzBass, 0.1f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.FuzzBass, 0.0f);
         }
 
         else if (variationCount == 4)
         {
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.AnalogLead, 0.1f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.AnalogLead, 0.0f);
         }
 
         else if (variationCount >= 5)
@@ -184,8 +197,8 @@ class BuildupMusicState: MusicState
             }
             else
             {
-                MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.1f);
-                MusicManager.Instance.MuteAudioGroup(AudioGroups.AnalogLead, 0.1f);
+                MusicManager.Instance.UnmuteAudioGroup(AudioGroups.DrumtrackAlternate, 0.0f);
+                MusicManager.Instance.MuteAudioGroup(AudioGroups.AnalogLead, 0.0f);
             }
         }
     }
@@ -197,7 +210,7 @@ class TensionMusicState : MusicState
     public void OnStart()
     {
         MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Tension);
-        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionBass);
+        MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionBass, 0.1f);
         MusicManager.Instance.MuteAudioGroup(AudioGroups.Buildup, 4.0f);
         
     }
@@ -213,12 +226,12 @@ class TensionMusicState : MusicState
 
         else if (variationCount == 2)
         {
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Drumtrack, 0.1f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.Drumtrack, 0.0f);
         }
 
         else if (variationCount == 3)
         {
-            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionArps, 0.1f);
+            MusicManager.Instance.UnmuteAudioGroup(AudioGroups.TensionArps, 0.0f);
         }
     }
 }
