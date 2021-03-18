@@ -1,9 +1,11 @@
-﻿using Project2.Scripts.XR_Player.Common.XR_Input;
+﻿using Project2.Scripts.Game_Logic;
+using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using XR_Prototyping.Scripts.Utilities.Generic;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
+    [RequireComponent(typeof(GameController))]
     public class XRInteractionController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
@@ -27,6 +29,12 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         [SerializeField] public GameObject finderAnchorVisual; 
         [SerializeField] private Material magnetMaterial, finderMaterial;
         [SerializeField, Range(float.Epsilon, .1f)] private float magnetWidth = .025f, finderWidth = .015f;
+        public Color 
+            magnetAnchorColour = new Color(1,1,1,1),
+            magnetGrabColour = new Color(1,1,1,1),
+            validAnchorColour = new Color(1,1,1,1),
+            invalidAnchorColour = new Color(1,1,1,1),
+            searchingAnchorColour = new Color(1,1,1,1);
         [Header("Cast Location Settings")]
         [SerializeField, Range(0f, 1000f)] public float maximumDistance = 250f;
         [SerializeField, Range(0f, 180f)] public float devianceTolerance = 30f;
@@ -39,6 +47,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private GameObject interactionParent;
         private bool useGravity;
         private XRInteractionInformation left, right;
+        public GameController GameController => GetComponent<GameController>();
 
         public Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
 
@@ -133,7 +142,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         
         private void MoveToAnchor(XRInteractionInformation movementInformation)
         {
-            if (XRInputController.ControllerButton(move, movementInformation.check))
+            if (movementInformation.Attached/*XRInputController.ControllerButton(move, movementInformation.check)*/)
             {
                 movementInformation.MoveToAnchor();
 

@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using Project2.Scripts.Game_Logic;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private Transform grabbedObject;
             private Outline grabbedOutline;
             private Rigidbody grabbedRigidbody;
+            private static readonly int State = Shader.PropertyToID("_State");
+            private static readonly int Colour = Shader.PropertyToID("_Colour");
 
             private Vector3 ControllerPosition => XRInputController.Position(check);
             public Vector3 CastOriginPosition => castOrigin.position;
@@ -34,9 +37,9 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             
             private Vector3 LassoPosition => new Vector3(0f, 0f, interactionController.lassoOffset);
 
-            public bool Attached { get; set; }
+            public bool Attached { get; private set; }
 
-            private void LateUpdate()
+            private void Update()
             {
                 magneticLasso.localPosition = LassoPosition;
                 anchorVisual.ScaleFactor(ScaleFactor);
@@ -101,6 +104,19 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 anchorVisual.gameObject.SetActive(true);
                 validAnchorLocation = validAnchor;
                 validGrabObject = validGrab;
+                anchorFinder.material.SetColor(Colour, interactionController.validAnchorColour);
+
+            }
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="raycastHit"></param>
+            /// <param name="validAnchor"></param>
+            /// <param name="validGrab"></param>
+            private void SearchForValidAnchorPoint(RaycastHit raycastHit, bool validAnchor, bool validGrab)
+            {
+                anchorFinder.material.SetColor(Colour, interactionController.searchingAnchorColour);
+                ValidCurrentAnchorPoint(raycastHit, validAnchor, validGrab);
             }
             /// <summary>
             /// Called when the user is not pointing directly at a valid point
@@ -108,17 +124,27 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public void NoValidCurrentAnchorPoint()
             {
                 // If the last valid anchor point is within a deviance from the origin, count it as valid
+                
                 if (Vector3.Angle(CastVector, (validAnchorPoint.point - CastOriginPosition)) <= interactionController.devianceTolerance)
                 {
-                    ValidCurrentAnchorPoint(validAnchorPoint, validAnchorLocation, validGrabObject);
+                    //todo make this be smarter 
+                    // needs to be checking if that location is "valid"
+                    // not saying it is - in case objects are moving etc.
+                    SearchForValidAnchorPoint(validAnchorPoint, validAnchorLocation, validGrabObject); 
                 }
                 else
                 {
                     finderAnchor.localPosition = Vector3.Lerp(finderAnchor.localPosition, FinderDefaultPosition, interactionController.finderDamping);
-                    anchorVisual.gameObject.SetActive(true);
+                    anchorVisual.gameObject.SetActive(false);
                     validAnchorLocation = false;
                     validGrabObject = false;
+                    anchorFinder.material.SetColor(Colour, interactionController.invalidAnchorColour);
                 }
+                return;
+                finderAnchor.localPosition = Vector3.Lerp(finderAnchor.localPosition, FinderDefaultPosition, interactionController.finderDamping);
+                anchorVisual.gameObject.SetActive(false);
+                validAnchorLocation = false;
+                validGrabObject = false;
             }
             
             /// <summary>
@@ -143,6 +169,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     Debug.Log($"{check}, trying to attach to {validAnchorPoint.point}");
                     attaching = true;
                     attachedPoint = validAnchorPoint;
+                    magnetVisual.material.SetColor(Colour, interactionController.magnetAnchorColour);
                     magnetVisual.enabled = true;
                     magnetAnchor.position = CastOriginPosition;
                     magnetAnchor.DOMove(attachedPoint.point, interactionController.attachDuration).OnComplete(AttachAnchor);
@@ -152,6 +179,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     attaching = true;
                     attachedPoint = validAnchorPoint;
                     magnetAnchor.position = CastOriginPosition;
+                    magnetVisual.material.SetColor(Colour, interactionController.magnetGrabColour);
                     magnetVisual.enabled = true;
                     magnetAnchor.DOMove(attachedPoint.point, .1f).OnComplete(GrabObject);
                 }
@@ -180,7 +208,21 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 grabbedObject = attachedPoint.transform;
                 grabbedRigidbody = grabbedObject.GetComponent<Rigidbody>();
                 
-                Debug.LogWarning($"Grabbing {grabbedObject.name}");
+                if (grabbedObject.TryGetComponent(out Bomb bomb))
+                {
+                    interactionController.GameController.CoupleTrigger = true;
+                    if (!interactionController.GameController.Ejected)
+                    {
+                        immediateDetach = true;
+                        Debug.Log($"<b>Grabbing the bomb for the first time, will couple with player!</b>");
+                        return;
+                    }
+                    Debug.Log($"<b>Grabbing the bomb!</b>");
+                }
+                else
+                {
+                    Debug.Log($"Grabbing regular ol' object: <b>{grabbedObject.name}</b>");
+                }
 
                 if (grabbedRigidbody == null)
                 {
@@ -258,21 +300,24 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             {
                 if (!Attached) return;
                 
-                Debug.Log("Adding force!!");
+                // Debug.Log("Adding force!!");
 
                 if (interactionController.UseMagneticForce)
                 {
                     interactionController.PlayerRigidbody.AddForce(MagneticVector * interactionController.MagneticForce, ForceMode.Acceleration);
+                    Debug.DrawRay(CastOriginPosition, MagneticVector * interactionController.MagneticForce, Color.blue);
                 }
 
                 if (interactionController.UseCastForce)
                 {
                     interactionController.PlayerRigidbody.AddForce(CastVector * interactionController.CastForce, ForceMode.Acceleration);
+                    Debug.DrawRay(CastOriginPosition, CastVector * interactionController.CastForce, Color.green);
                 }
 
                 if (interactionController.UseManoeuvreForce)
                 {
                     interactionController.PlayerRigidbody.AddForce(ManoeuvreVector * interactionController.ManoeuvreForce, ForceMode.Acceleration);
+                    Debug.DrawRay(CastOriginPosition, ManoeuvreVector * interactionController.ManoeuvreForce, Color.cyan);
                 }
 
                 if (interactionController.UseAverageForce)
@@ -281,10 +326,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                     interactionController.PlayerRigidbody.AddForce(averageVector * interactionController.AverageForce, ForceMode.Acceleration);
                     Debug.DrawRay(CastOriginPosition, averageVector * interactionController.AverageForce, Color.yellow);
                 }
-
-                Debug.DrawRay(CastOriginPosition, MagneticVector * interactionController.MagneticForce, Color.blue);
-                Debug.DrawRay(CastOriginPosition, CastVector * interactionController.CastForce, Color.green);
-                Debug.DrawRay(CastOriginPosition, ManoeuvreVector * interactionController.ManoeuvreForce, Color.cyan);
             }
         }
 }
