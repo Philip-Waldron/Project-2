@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4097014754086851076}
   - component: {fileID: 6422027825527539729}
   - component: {fileID: 9187127777268213059}
+  - component: {fileID: 7267281743899726145}
   - component: {fileID: 3758113860359935872}
   - component: {fileID: 6395249360161783834}
   - component: {fileID: 3336247620417826493}
@@ -233,6 +234,22 @@ MonoBehaviour:
   move: 1
   lassoOffset: 3.5
   magneticGrabForce: 5
+--- !u!114 &7267281743899726145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3537935100338196466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb8652549881a3419cdc9982eac7476, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerRigidbody: {fileID: 6395249360161783834}
+  force: 75
+  cooldown: 3
+  thruster: {fileID: 2592056167885685928, guid: 222e6812801bef54c9a153e867b3e5cf, type: 3}
 --- !u!114 &3758113860359935872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -804,7 +821,7 @@ MonoBehaviour:
   m_UpdateTrackingType: 0
   m_EnableInputTracking: 1
   m_EnableInputActions: 1
-  m_ModelPrefab: {fileID: 4558512418121378353, guid: b12581722b684c14795206bf9a56d5eb, type: 3}
+  m_ModelPrefab: {fileID: 747937443165605956, guid: b12581722b684c14795206bf9a56d5eb, type: 3}
   m_ModelTransform: {fileID: 3537935101972415518}
   m_AnimateModel: 0
   m_ModelSelectTransition: 
