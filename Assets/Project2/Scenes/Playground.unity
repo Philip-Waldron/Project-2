@@ -7832,6 +7832,31 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 526573366}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &531517785 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3537935100338196466, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+  m_PrefabInstance: {fileID: 748506784}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &531517786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 531517785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb8652549881a3419cdc9982eac7476, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerRigidbody: {fileID: 531517788}
+  force: 15
+  duration: 3
+--- !u!54 &531517788 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+  m_PrefabInstance: {fileID: 748506784}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &532440578
 GameObject:
   m_ObjectHideFlags: 0
@@ -10885,6 +10910,10 @@ PrefabInstance:
     - target: {fileID: 3537935100338196466, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_Name
       value: '[XR Player]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4097014754086851076, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6395249360161783834, guid: 468eed719a135104ebca5e4fadf61361, type: 3}
       propertyPath: m_Drag
@@ -15868,15 +15897,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bd963dbe79ee714f9631aebd0c27954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjectsToSpawn:
-  - {fileID: 12524876}
-  - {fileID: 494120760}
-  - {fileID: 759210077}
-  - {fileID: 1118183285}
-  ObjectsToSpawnFixedScale: []
-  NumberOfObjectsToSpawn: 250
-  MinScale: {x: 0.2, y: 0.2, z: 0.2}
-  MaxScale: {x: 10, y: 10, z: 10}
+  CommonGarbage: []
+  UncommonGarbage: []
+  RareGarbage: []
+  EpicGarbage: []
+  LegendaryGarbage: []
+  AmountOfGarbageToSpawn: 0
+  ChanceToSpin: 2
+  MinSpinTorque: {x: 0, y: 0, z: 0}
+  MaxSpinTorque: {x: 0, y: 0, z: 0}
 --- !u!23 &1136175031
 MeshRenderer:
   m_ObjectHideFlags: 0
