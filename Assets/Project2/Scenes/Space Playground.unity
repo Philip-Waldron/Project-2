@@ -263,7 +263,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1136175030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,7 +321,7 @@ MonoBehaviour:
     MinScale: {x: 0.01, y: 0.01, z: 0.01}
     MaxScale: {x: 0.01, y: 0.01, z: 0.01}
     UniformScale: 1
-  AmountOfGarbageToSpawn: 1000
+  AmountOfGarbageToSpawn: 500
   ChanceToSpin: 75
   MinSpinTorque: {x: 0.1, y: 0.1, z: 0.1}
   MaxSpinTorque: {x: 1, y: 1, z: 1}

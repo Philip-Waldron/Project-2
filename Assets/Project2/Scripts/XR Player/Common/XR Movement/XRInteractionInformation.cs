@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using XR_Prototyping.Scripts.Utilities;
 using XR_Prototyping.Scripts.Utilities.Generic;
+using Outline = VR_Prototyping.Plugins.QuickOutline.Scripts.Outline;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
@@ -21,7 +22,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             
             private bool grabbed, gravity;
             private Transform grabbedObject, anchoredObject;
-            private Outline grabbedOutline;
             private Rigidbody grabbedRigidbody;
             private static readonly int State = Shader.PropertyToID("_State");
             private static readonly int Colour = Shader.PropertyToID("_Colour");
@@ -195,10 +195,16 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 anchoredObject = attachedPoint.transform;
                 magnetAnchor.SetParent(anchoredObject);
                 
-                if (anchoredObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
+                if (anchoredObject.TryGetComponent(out Outline outline))
                 {
                     outline.OutlineColor = interactionController.magnetAnchorColour;
                     outline.enabled = true;
+                }
+                else
+                {
+                    Outline newOutline = anchoredObject.gameObject.AddComponent<Outline>();
+                    newOutline.OutlineColor = interactionController.magnetAnchorColour;
+                    newOutline.enabled = true;
                 }
                 
                 AttachJoint();
