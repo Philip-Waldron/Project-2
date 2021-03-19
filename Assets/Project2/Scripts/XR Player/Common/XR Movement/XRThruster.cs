@@ -23,7 +23,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private bool Cooldown()
         {
             bool coolingDown = CooldownValue() < 1f;
-            Debug.Log(coolingDown ? $"{check} thruster cooling down!" : $"{check} thruster cooled down at {Time.time}");
+            // Debug.Log(coolingDown ? $"{check} thruster cooling down!" : $"{check} thruster cooled down at {Time.time}");
             return coolingDown;
         }
 
@@ -77,6 +77,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         {
             playerRigidbody.AddForce(ThrustVector, ForceMode.VelocityChange);
             thrustEffect.SendEvent("ThrustStart");
+            thrustEffect.SetVector3($"Thrust Direction", -ThrustVector);
             Debug.DrawRay(XRInputController.Position(check), ThrustVector, Color.red);
         }
         
