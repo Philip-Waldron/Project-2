@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using Project2.Scripts.Game_Logic;
+using Project2.Scripts.Interfaces;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using UnityEngine.UI;
@@ -195,17 +196,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 anchoredObject = attachedPoint.transform;
                 magnetAnchor.SetParent(anchoredObject);
                 
-                if (anchoredObject.TryGetComponent(out Outline outline))
-                {
-                    outline.OutlineColor = interactionController.magnetAnchorColour;
-                    outline.enabled = true;
-                }
-                else
-                {
-                    Outline newOutline = anchoredObject.gameObject.AddComponent<Outline>();
-                    newOutline.OutlineColor = interactionController.magnetAnchorColour;
-                    newOutline.enabled = true;
-                }
+                anchoredObject.GetComponent<InteractiveObjectInterfaces.ICanAttach>().Attach(interactionController.magnetAnchorColour);
                 
                 AttachJoint();
                 
@@ -245,11 +236,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
                 // grabbedRigidbody.velocity = Vector3.zero;
 
-                if (grabbedObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
-                {
-                    outline.OutlineColor = interactionController.magnetGrabColour;
-                    outline.enabled = true;
-                }
+                grabbedObject.GetComponent<InteractiveObjectInterfaces.ICanGrab>().Grab(interactionController.magnetGrabColour);
                 
                 magnetAnchor.SetParent(grabbedObject);
                 gravity = grabbedRigidbody.useGravity;
@@ -269,10 +256,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 grabbed = false;
                 grabbedRigidbody.velocity *= 2f;
                 grabbedRigidbody.useGravity = gravity;
-                if (grabbedObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
-                {
-                    outline.enabled = false;
-                }
+                grabbedObject.GetComponent<InteractiveObjectInterfaces.ICanGrab>().Release();
             }
 
             private void AttachJoint() { }
@@ -300,10 +284,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 else
                 {
                     Debug.Log($"{check}, detaching anchor");
-                    if (anchoredObject.TryGetComponent(out VR_Prototyping.Plugins.QuickOutline.Scripts.Outline outline))
-                    {
-                        outline.enabled = false;
-                    }
+                    anchoredObject.GetComponent<InteractiveObjectInterfaces.ICanAttach>().Detach();
                     magnetAnchor.DOMove(CastOriginPosition, interactionController.detachDuration).OnComplete(DetachAnchor);
                 }
             }

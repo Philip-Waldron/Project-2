@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2668845903985712035}
   - component: {fileID: 6095804047138815631}
   - component: {fileID: 3553276591916636793}
+  - component: {fileID: 3068993594924183739}
   m_Layer: 0
   m_Name: Barrel
   m_TagString: CanGrab
@@ -4591,3 +4592,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &3068993594924183739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2668845903985712034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f4ca4bbf4020254fb1909c3b9a0dae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startHealth: 10
+  explosionRadius: 35
+  explosionForce: 75
+  currentHealth: 0
+  exceededDamage: 0

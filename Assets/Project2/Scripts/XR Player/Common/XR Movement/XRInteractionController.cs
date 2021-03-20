@@ -1,4 +1,6 @@
 ﻿using Project2.Scripts.Game_Logic;
+using Project2.Scripts.Interactives;
+using Project2.Scripts.Interfaces;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using XR_Prototyping.Scripts.Utilities.Generic;
@@ -105,13 +107,13 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
             if (Physics.Raycast(interactionInformation.CastOriginPosition, interactionInformation.CastVector, out RaycastHit hit, maximumDistance))
             {
-                if (hit.transform.CompareTag("CanAttach"))
+                if (hit.transform.TryGetComponent(out InteractiveObjectInterfaces.ICanAttach canAttach)/*.transform.CompareTag("CanAttach")*/)
                 {
                     interactionInformation.ValidCurrentAnchorPoint(hit, true, false);
                     debug = Color.green;
                     distance = hit.distance;   
                 }
-                else if (hit.transform.CompareTag("CanGrab"))
+                else if (hit.transform.TryGetComponent(out InteractiveObjectInterfaces.ICanGrab canGrab)/*.CompareTag("CanGrab")*/)
                 {
                     interactionInformation.ValidCurrentAnchorPoint(hit, false, true);
                     debug = Color.yellow;
@@ -142,7 +144,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         
         private void MoveToAnchor(XRInteractionInformation movementInformation)
         {
-            if (movementInformation.Attached/*XRInputController.ControllerButton(move, movementInformation.check)*/)
+            if (movementInformation.Attached)
             {
                 movementInformation.MoveToAnchor();
 

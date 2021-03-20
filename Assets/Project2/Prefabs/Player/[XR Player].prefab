@@ -247,8 +247,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerRigidbody: {fileID: 6395249360161783834}
-  force: 75
-  cooldown: 3
+  force: 12.5
+  cooldown: 5
   thruster: {fileID: 2592056167885685928, guid: 222e6812801bef54c9a153e867b3e5cf, type: 3}
 --- !u!114 &3758113860359935872
 MonoBehaviour:

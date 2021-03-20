@@ -293,6 +293,14 @@ MonoBehaviour:
     MinScale: {x: 0.01, y: 0.01, z: 0.01}
     MaxScale: {x: 0.05, y: 0.05, z: 0.05}
     UniformScale: 1
+  - GarbageObject: {fileID: 7848435714651499975, guid: b7684d40bb6ad4e4dbea891a11eaff9a, type: 3}
+    MinScale: {x: 1, y: 25, z: 1}
+    MaxScale: {x: 10, y: 250, z: 10}
+    UniformScale: 0
+  - GarbageObject: {fileID: 6256776483710826556, guid: 348e031083aff70488a60b5fac513c58, type: 3}
+    MinScale: {x: 1, y: 1, z: 1}
+    MaxScale: {x: 5, y: 5, z: 5}
+    UniformScale: 1
   UncommonGarbage:
   - GarbageObject: {fileID: 791281037791393442, guid: ea2b9937c76342c4db90ce12bc693586, type: 3}
     MinScale: {x: 5, y: 5, z: 5}
@@ -325,7 +333,7 @@ MonoBehaviour:
     MinScale: {x: 0.01, y: 0.01, z: 0.01}
     MaxScale: {x: 0.01, y: 0.01, z: 0.01}
     UniformScale: 1
-  AmountOfGarbageToSpawn: 500
+  AmountOfGarbageToSpawn: 1000
   ChanceToSpin: 75
   MinSpinTorque: {x: 0.1, y: 0.1, z: 0.1}
   MaxSpinTorque: {x: 1, y: 1, z: 1}

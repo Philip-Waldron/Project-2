@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4118008984775564269}
   - component: {fileID: 9181208156833981542}
   - component: {fileID: 7490063929713618272}
+  - component: {fileID: 1598498481281864232}
   m_Layer: 0
   m_Name: Debris1
   m_TagString: CanAttach
@@ -655,3 +656,15 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1598498481281864232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4118008984775564268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdd1a7e1c6f75db4499ab059f440e132, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
