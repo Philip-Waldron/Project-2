@@ -8,17 +8,16 @@ namespace Project2.Scripts.Interactives
     {
         private Outline outline;
 
-        private void Awake()
+        private void Start()
         {
             outline = gameObject.AddComponent<Outline>();
-            outline.OutlineMode = Outline.Mode.OutlineAndSilhouette;
+            outline.OutlineMode = Outline.Mode.OutlineAll;
             outline.enabled = false;
         }
         
         public void Grab(Color color)
         {
             outline.OutlineColor = color;
-            outline.OutlineMode = Outline.Mode.OutlineAndSilhouette;
             outline.enabled = true;
         }
 

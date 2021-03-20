@@ -75,7 +75,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         /// </summary>
         private void Thrust()
         {
-            playerRigidbody.AddForce(ThrustVector, ForceMode.VelocityChange);
+            playerRigidbody.AddForce(ThrustVector, ForceMode.Impulse);
             thrustEffect.SendEvent("ThrustStart");
             thrustEffect.SetVector3($"Thrust Direction", XRInputController.Forward(check));
         }
