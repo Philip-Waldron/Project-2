@@ -13,23 +13,23 @@ namespace XR_Prototyping.Scripts.Common.XR_Input
 
         private void Update()
         {
-            if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Forward))
+            if (XRInputController.Instance.AxisDirection(check, XRInputController.Cardinal.Forward))
             {
                 forward.Invoke();
             }
-            if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Back))
+            if (XRInputController.Instance.AxisDirection(check, XRInputController.Cardinal.Back))
             {
                 backward.Invoke();
             }
-            if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Left))
+            if (XRInputController.Instance.AxisDirection(check, XRInputController.Cardinal.Left))
             {
                 left.Invoke();
             }
-            if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Right))
+            if (XRInputController.Instance.AxisDirection(check, XRInputController.Cardinal.Right))
             {
                 right.Invoke();
             }
-            if (XRInputController.AxisDirection(check, XRInputController.Cardinal.Center))
+            if (XRInputController.Instance.AxisDirection(check, XRInputController.Cardinal.Center))
             {
                 center.Invoke();
             }

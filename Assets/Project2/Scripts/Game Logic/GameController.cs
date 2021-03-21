@@ -43,8 +43,15 @@ namespace Project2.Scripts.Game_Logic
         private float HealthValue => currentHealth / startHealth;
         private float CurrentDistance => Vector3.Distance(objective.transform.position, bomb.transform.position);
 
-        private static Vector3 HeadPosition => XRInputController.Position(XRInputController.Check.Head);
+        private static Vector3 HeadPosition => XRInputController.Instance.Position(XRInputController.Check.Head);
         private static Vector3 BombPosition => new Vector3(HeadPosition.x, HeadPosition.y - .65f, HeadPosition.z);
+
+        public static GameController Instance { get; private set; }
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         private void Start()
         {
@@ -73,13 +80,13 @@ namespace Project2.Scripts.Game_Logic
             {
                 // Set it in the right position on the player
                 bomb.transform.position = BombPosition;
-                bomb.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
+                bomb.transform.eulerAngles = XRInputController.Instance.NormalisedRotation(XRInputController.Check.Head);
                 // Check if you need to eject it from the player
                 if (DecoupleTrigger(out XRInputController.Check check))
                 {
                     Ejected = true;
                     coupled = false;
-                    bomb.Decouple(XRInputController.Forward(check) * 7.5f);
+                    bomb.Decouple(XRInputController.Instance.Forward(check) * 7.5f);
                     onEjection.Invoke();
                 }
             }
@@ -87,7 +94,7 @@ namespace Project2.Scripts.Game_Logic
             {
                 bomb.Couple(this);
                 bomb.transform.DOMove(BombPosition, .25f).OnComplete(()=> coupled = true);
-                bomb.transform.DORotate(XRInputController.NormalisedRotation(XRInputController.Check.Head), .25f).OnComplete(()=> bomb.transform.SetParent(transform));
+                bomb.transform.DORotate(XRInputController.Instance.NormalisedRotation(XRInputController.Check.Head), .25f).OnComplete(()=> bomb.transform.SetParent(transform));
                 CoupleTrigger = false;
 
                 leftDoor.DOLocalMove(new Vector3(0f, 0f, 2f), 3f);
@@ -200,7 +207,7 @@ namespace Project2.Scripts.Game_Logic
 
         private static bool DecoupleTrigger(out XRInputController.Check check)
         {
-            bool state = XRInputController.InputEvent(XRInputController.XRControllerButton.Primary).State(XRInputController.InputEvents.InputEvent.Transition.Down, out XRInputController.Check setCheck);
+            bool state = XRInputController.Instance.InputEvent(XRInputController.XRControllerButton.Primary).State(XRInputController.InputEvents.InputEvent.Transition.Down, out XRInputController.Check setCheck);
             check = setCheck;
             return state;
         }

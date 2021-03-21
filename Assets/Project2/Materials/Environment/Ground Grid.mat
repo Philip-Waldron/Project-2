@@ -20,10 +20,10 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _Density: 150
-    - _GridSize: 0.1
+    - _Density: 100
+    - _GridSize: 0.2
     - _Type: 0
     m_Colors:
     - _GridColour: {r: 0, g: 0, b: 0, a: 1}
-    - _PlaneColour: {r: 1, g: 1, b: 1, a: 0.05882353}
+    - _PlaneColour: {r: 0, g: 0, b: 0, a: 0.05882353}
   m_BuildTextureStacks: []

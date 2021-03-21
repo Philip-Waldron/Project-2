@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/URP Example Assets/Scenes/SampleScene.unity
     guid: d1c3109bdb54ad54c8a2b2838528e640
+  - enabled: 1
+    path: Assets/Normal/Examples/VR Player/Realtime + VR Player.unity
+    guid: cbad2cf12426734428dbbceae2c6cbdc
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 49397dada8620c64b8e8be8137ce8752, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 9518e93e77c70424c9821f6c8e19c0a7, type: 2}

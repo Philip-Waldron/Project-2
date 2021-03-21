@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Normal.Realtime;
 using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
 using UnityEngine.XR;
@@ -158,10 +159,20 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
                 return false;
             }
         }
+        
+        public static XRInputController Instance { get; private set; }
 
         private void Awake()
         {
+            Instance = this;
             CreateConstructionObjects();
+        }
+        private void AssertLocalOwnership(Transform target)
+        {
+            if (target.TryGetComponent(out RealtimeTransform realtimeTransform))
+            {
+                realtimeTransform.RequestOwnership();
+            }
         }
         /// <summary>
         /// 
@@ -177,6 +188,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
             SetInputEvents();
             SetGestureEvents();
             SetValueDeltas();
+            
+            AssertLocalOwnership(transform);
+            AssertLocalOwnership(headTransform);
+            AssertLocalOwnership(leftTransform);
+            AssertLocalOwnership(rightTransform);
         }
         
         private Vector3 BimanualForwardVector => Position(Check.Right) - Position(Check.Left);

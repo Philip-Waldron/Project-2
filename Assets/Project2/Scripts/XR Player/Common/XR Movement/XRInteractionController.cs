@@ -7,7 +7,6 @@ using XR_Prototyping.Scripts.Utilities.Generic;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
-    [RequireComponent(typeof(GameController))]
     public class XRInteractionController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
@@ -49,12 +48,13 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private GameObject interactionParent;
         private bool useGravity;
         private XRInteractionInformation left, right;
-        public GameController GameController => GetComponent<GameController>();
 
-        public Rigidbody PlayerRigidbody => GetComponent<Rigidbody>();
+        public Rigidbody PlayerRigidbody;
 
         private void Awake()
         {
+            PlayerRigidbody = GetComponent<Rigidbody>();
+            
             interactionParent = Set.Object(null, "[Movement Parent]", Vector3.zero);
             left = interactionParent.AddComponent<XRInteractionInformation>();
             right = interactionParent.AddComponent<XRInteractionInformation>();
@@ -75,11 +75,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private void SetTransforms()
         {
             Vector3 position = new Vector3(
-                XRInputController.Position(XRInputController.Check.Head).x, 
-                XRInputController.Position(XRInputController.Check.Head).y - headOffset, 
-                XRInputController.Position(XRInputController.Check.Head).z);
+                XRInputController.Instance.Position(XRInputController.Check.Head).x, 
+                XRInputController.Instance.Position(XRInputController.Check.Head).y - headOffset, 
+                XRInputController.Instance.Position(XRInputController.Check.Head).z);
             interactionParent.transform.position = position;
-            interactionParent.transform.eulerAngles = XRInputController.NormalisedRotation(XRInputController.Check.Head);
+            interactionParent.transform.eulerAngles = XRInputController.Instance.NormalisedRotation(XRInputController.Check.Head);
             
             left.SetTransform(-hipOffset);
             right.SetTransform(hipOffset);
@@ -132,11 +132,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
         private void AttachDetach(XRInteractionInformation interactionInformation)
         {
-            if (XRInputController.InputEvent(attach).State(interactionInformation.check, XRInputController.InputEvents.InputEvent.Transition.Down))
+            if (XRInputController.Instance.InputEvent(attach).State(interactionInformation.check, XRInputController.InputEvents.InputEvent.Transition.Down))
             {
                 interactionInformation.TriggerAttach();
             }
-            else if (XRInputController.InputEvent(attach).State(interactionInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
+            else if (XRInputController.Instance.InputEvent(attach).State(interactionInformation.check, XRInputController.InputEvents.InputEvent.Transition.Up))
             {
                 interactionInformation.TriggerDetach(); 
             }

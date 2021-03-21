@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using Normal.Realtime;
 using Project2.Scripts.Game_Logic;
 using Project2.Scripts.Interfaces;
 using Project2.Scripts.XR_Player.Common.XR_Input;
@@ -27,10 +28,10 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             private static readonly int State = Shader.PropertyToID("_State");
             private static readonly int Colour = Shader.PropertyToID("_Colour");
 
-            private Vector3 ControllerPosition => XRInputController.Position(check);
+            private Vector3 ControllerPosition => XRInputController.Instance.Position(check);
             public Vector3 CastOriginPosition => castOrigin.position;
             public Vector3 CastVector => castOrigin.forward;
-            private static Vector3 ManoeuvreVector => XRInputController.Forward(XRInputController.Check.Head);
+            private static Vector3 ManoeuvreVector => XRInputController.Instance.Forward(XRInputController.Check.Head);
             private Vector3 MagneticVector => (attachedPoint.point - CastOriginPosition).normalized;
             private Vector3 FinderDefaultPosition => new Vector3(0f, 0f, interactionController.maximumDistance);
             private float ScaleFactor => Vector3.Distance(CastOriginPosition, finderAnchor.position);
@@ -47,7 +48,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 
                 if (grabbed)
                 {
-                    grabbedRigidbody.AddForce((magneticLasso.position - grabbedObject.position) * interactionController.magneticGrabForce); 
+                    if (grabbedObject.TryGetComponent(out RealtimeTransform realtimeTransform))
+                    {
+                        realtimeTransform.RequestOwnership();
+                    }
+                    grabbedRigidbody.AddForce((magneticLasso.position - grabbedObject.position) * interactionController.magneticGrabForce);
                 }
             }
 
@@ -211,11 +216,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 attaching = false;
                 grabbedObject = attachedPoint.transform;
                 grabbedRigidbody = grabbedObject.GetComponent<Rigidbody>();
-                
+
                 if (grabbedObject.TryGetComponent(out Bomb bomb))
                 {
-                    interactionController.GameController.CoupleTrigger = true;
-                    if (!interactionController.GameController.Ejected)
+                    GameController.Instance.CoupleTrigger = true;
+                    if (!GameController.Instance.Ejected)
                     {
                         immediateDetach = true;
                         Debug.Log($"<b>Grabbing the bomb for the first time, will couple with player!</b>");

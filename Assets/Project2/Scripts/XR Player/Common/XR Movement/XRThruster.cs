@@ -18,7 +18,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private float force, cooldown = 1f;
         private float lastThrustTime;
 
-        private Vector3 ThrustVector => (- XRInputController.Forward(check)) * force;
+        private Vector3 ThrustVector => (- XRInputController.Instance.Forward(check)) * force;
 
         private bool Cooldown()
         {
@@ -54,7 +54,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             thrusterController = controller;
             check = setCheck;
             playerRigidbody = setRigidbody;
-            thruster = Instantiate(thrusterController.thruster, XRInputController.Transform(check));
+            thruster = Instantiate(thrusterController.thruster, XRInputController.Instance.Transform(check));
             cooldownVisual = thruster.GetComponentInChildren<ThrusterCooldownVisual>();
             thrustEffect = thruster.GetComponent<VisualEffect>();
         }
@@ -77,7 +77,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         {
             playerRigidbody.AddForce(ThrustVector, ForceMode.Impulse);
             thrustEffect.SendEvent("ThrustStart");
-            thrustEffect.SetVector3($"Thrust Direction", XRInputController.Forward(check));
+            thrustEffect.SetVector3($"Thrust Direction", XRInputController.Instance.Forward(check));
         }
         
         /// <summary>
@@ -86,7 +86,7 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         /// <returns></returns>
         private bool TriggerThrust()
         {
-            return !Cooldown() && XRInputController.InputEvent(XRInputController.XRControllerButton.Trigger).State(check, XRInputController.InputEvents.InputEvent.Transition.Down);
+            return !Cooldown() && XRInputController.Instance.InputEvent(XRInputController.XRControllerButton.Trigger).State(check, XRInputController.InputEvents.InputEvent.Transition.Down);
         }
     }
 }
