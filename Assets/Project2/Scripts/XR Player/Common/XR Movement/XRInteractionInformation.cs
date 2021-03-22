@@ -48,10 +48,6 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
                 
                 if (grabbed)
                 {
-                    if (grabbedObject.TryGetComponent(out RealtimeTransform realtimeTransform))
-                    {
-                        realtimeTransform.RequestOwnership();
-                    }
                     grabbedRigidbody.AddForce((magneticLasso.position - grabbedObject.position) * interactionController.magneticGrabForce);
                 }
             }
@@ -243,6 +239,11 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
 
                 grabbedObject.GetComponent<InteractiveObjectInterfaces.ICanGrab>().Grab(interactionController.magnetGrabColour);
                 
+                if (grabbedObject.TryGetComponent(out RealtimeTransform realtimeTransform))
+                {
+                    realtimeTransform.RequestOwnership();
+                }
+                
                 magnetAnchor.SetParent(grabbedObject);
                 gravity = grabbedRigidbody.useGravity;
                 grabbedRigidbody.useGravity = false;
@@ -312,33 +313,9 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
             public void MoveToAnchor()
             {
                 if (!Attached) return;
-                
-                // Debug.Log("Adding force!!");
-
-                if (interactionController.UseMagneticForce)
-                {
-                    interactionController.PlayerRigidbody.AddForce(MagneticVector * interactionController.MagneticForce, ForceMode.Acceleration);
-                    Debug.DrawRay(CastOriginPosition, MagneticVector * interactionController.MagneticForce, Color.blue);
-                }
-
-                if (interactionController.UseCastForce)
-                {
-                    interactionController.PlayerRigidbody.AddForce(CastVector * interactionController.CastForce, ForceMode.Acceleration);
-                    Debug.DrawRay(CastOriginPosition, CastVector * interactionController.CastForce, Color.green);
-                }
-
-                if (interactionController.UseManoeuvreForce)
-                {
-                    interactionController.PlayerRigidbody.AddForce(ManoeuvreVector * interactionController.ManoeuvreForce, ForceMode.Acceleration);
-                    Debug.DrawRay(CastOriginPosition, ManoeuvreVector * interactionController.ManoeuvreForce, Color.cyan);
-                }
-
-                if (interactionController.UseAverageForce)
-                {
-                    Vector3 averageVector = ((MagneticVector + CastVector) * 0.5f).normalized;
-                    interactionController.PlayerRigidbody.AddForce(averageVector * interactionController.AverageForce, ForceMode.Acceleration);
-                    Debug.DrawRay(CastOriginPosition, averageVector * interactionController.AverageForce, Color.yellow);
-                }
+                Vector3 averageVector = ((MagneticVector + CastVector) * 0.5f).normalized;
+                interactionController.PlayerRigidbody.AddForce(averageVector * interactionController.averageForce, ForceMode.Acceleration);
+                Debug.DrawRay(CastOriginPosition, averageVector * interactionController.averageForce, Color.yellow);
             }
         }
 }

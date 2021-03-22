@@ -10,14 +10,15 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
     public class XRInteractionController : XRInputAbstraction
     {
         [Header("Movement Force Settings")]
-        public bool UseMagneticForce;
-        [SerializeField, Range(0f, 100f)] public float MagneticForce = 50f;
-        public bool UseCastForce;
-        [SerializeField, Range(0f, 100f)] public float CastForce = 15f;
-        public bool UseManoeuvreForce;
-        [SerializeField, Range(0f, 100f)] public float ManoeuvreForce = 15f;
-        public bool UseAverageForce;
-        [SerializeField, Range(0f, 100f)] public float AverageForce = 15f;
+        // public bool UseMagneticForce;
+        // [SerializeField, Range(0f, 100f)] public float MagneticForce = 50f;
+        // public bool UseCastForce;
+        // [SerializeField, Range(0f, 100f)] public float CastForce = 15f;
+        // public bool UseManoeuvreForce;
+        // [SerializeField, Range(0f, 100f)] public float ManoeuvreForce = 15f;
+        // public bool UseAverageForce;
+        
+        [SerializeField, Range(0f, 100f)] public float averageForce = 15f;
         public bool DisableGravityOnForceApplied;
         [Header("Magnet Animation Settings")]
         [SerializeField, Range(float.Epsilon, 1f)] public float attachDuration = .5f;
@@ -49,13 +50,14 @@ namespace Project2.Scripts.XR_Player.Common.XR_Movement
         private bool useGravity;
         private XRInteractionInformation left, right;
 
-        public Rigidbody PlayerRigidbody;
+        public Rigidbody PlayerRigidbody { get; private set; }
 
         private void Awake()
         {
             PlayerRigidbody = GetComponent<Rigidbody>();
             
             interactionParent = Set.Object(null, "[Movement Parent]", Vector3.zero);
+            
             left = interactionParent.AddComponent<XRInteractionInformation>();
             right = interactionParent.AddComponent<XRInteractionInformation>();
 
