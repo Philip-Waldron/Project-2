@@ -6,7 +6,6 @@ using Project2.Scripts.XR_Player.Common.XR_Input.Input_Data;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using XR_Prototyping.Scripts.Common.XR_Input;
 using XR_Prototyping.Scripts.Utilities.Generic;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Input
@@ -16,7 +15,8 @@ namespace Project2.Scripts.XR_Player.Common.XR_Input
     /// Inputs are abstracted from cardinal left and right inputs, and are referred to as DominantHand() and NonDominantHand()
     /// Whose assignment can be changed on the fly
     /// </summary>
-    public class XRInputController : XRInputAbstraction
+    [DisallowMultipleComponent]
+    public class XRInputController : MonoBehaviour
     {
         public enum Check { Left, Right, Head }
         public enum Hand { NonDominant, Dominant }

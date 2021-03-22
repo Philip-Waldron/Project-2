@@ -1,11 +1,9 @@
-﻿using System;
-using Project2.Scripts.XR_Player.Common.XR_Input;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
-namespace XR_Prototyping.Scripts.Common.XR_Input
+namespace Project2.Scripts.XR_Player.Common.XR_Input
 {
-    public class AnalogGestureEvents : XRInputAbstraction
+    public class AnalogGestureEvents : MonoBehaviour
     {
         [Header("Gesture Information")]
         [SerializeField] private XRInputController.Check check;

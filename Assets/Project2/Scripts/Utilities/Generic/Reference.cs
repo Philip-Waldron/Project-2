@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Project2.Scripts.XR_Player.Common.XR_Input;
 using UnityEngine;
 using XR_Prototyping.Scripts.Common;
-using XR_Prototyping.Scripts.Common.XR_Input;
 
 public static class Reference
 {

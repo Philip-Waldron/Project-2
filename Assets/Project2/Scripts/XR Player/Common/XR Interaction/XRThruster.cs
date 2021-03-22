@@ -5,7 +5,7 @@ using UnityEngine.VFX;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
-    public class XRThruster : XRInputAbstraction
+    public class XRThruster : MonoBehaviour
     { 
         [Range(0, 1)] public float cooldownProgress;
         public XRInputController.Check check;

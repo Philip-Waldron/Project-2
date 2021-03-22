@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace Project2.Scripts.Game_Logic
 {
-    public class GameController : XRInputAbstraction
+    public class GameController : MonoBehaviour
     {
         [Header("Core References")]
         [SerializeField] private Bomb bomb;

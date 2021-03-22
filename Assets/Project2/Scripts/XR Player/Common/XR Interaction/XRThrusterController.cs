@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Project2.Scripts.XR_Player.Common.XR_Movement
 {
-    public class XRThrusterController : XRInputAbstraction
+    public class XRThrusterController : MonoBehaviour
     {
         [SerializeField] private Rigidbody playerRigidbody;
         [SerializeField, Range(0, 150)] private float force = 50f;
